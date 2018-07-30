@@ -1,6 +1,7 @@
 module Softfloat.Internal
   ( -- * Global variables
     exceptionFlags
+  , roundingMode
 
     -- * Integer to float conversion
   , ui32_to_f16
