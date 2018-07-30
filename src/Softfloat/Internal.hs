@@ -20,9 +20,13 @@ module Softfloat.Internal
   , i64_to_f32
   , i64_to_f64
 
+  -- * Float to integer conversions
+  , f32_to_ui32
+
   , f32_mul
   ) where
 
+import Data.Int
 import Data.Word
 import Foreign.Ptr
 
@@ -39,13 +43,15 @@ foreign import ccall "ui64_to_f16" ui64_to_f16 :: Word64 -> IO Word16
 foreign import ccall "ui64_to_f32" ui64_to_f32 :: Word64 -> IO Word32
 foreign import ccall "ui64_to_f64" ui64_to_f64 :: Word64 -> IO Word64
 
-foreign import ccall "i32_to_f16" i32_to_f16 :: Word32 -> IO Word16
-foreign import ccall "i32_to_f32" i32_to_f32 :: Word32 -> IO Word32
-foreign import ccall "i32_to_f64" i32_to_f64 :: Word32 -> IO Word64
+foreign import ccall "i32_to_f16" i32_to_f16 :: Int32 -> IO Word16
+foreign import ccall "i32_to_f32" i32_to_f32 :: Int32 -> IO Word32
+foreign import ccall "i32_to_f64" i32_to_f64 :: Int32 -> IO Word64
 
-foreign import ccall "i64_to_f16" i64_to_f16 :: Word64 -> IO Word16
-foreign import ccall "i64_to_f32" i64_to_f32 :: Word64 -> IO Word32
-foreign import ccall "i64_to_f64" i64_to_f64 :: Word64 -> IO Word64
+foreign import ccall "i64_to_f16" i64_to_f16 :: Int64 -> IO Word16
+foreign import ccall "i64_to_f32" i64_to_f32 :: Int64 -> IO Word32
+foreign import ccall "i64_to_f64" i64_to_f64 :: Int64 -> IO Word64
+
+foreign import ccall "f32_to_ui32" f32_to_ui32 :: Word32 -> Word8 -> Int -> IO Word32
 
 -- uint_fast32_t f32_to_ui32( float32_t, uint_fast8_t, bool );
 -- uint_fast64_t f32_to_ui64( float32_t, uint_fast8_t, bool );
