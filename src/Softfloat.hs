@@ -59,8 +59,63 @@ module Softfloat
   , f64ToUi64
   , f64ToI32
   , f64ToI64
-  -- * Floating point operations
+
+  -- * Floating point to floating point conversions
+  , f16ToF32
+  , f16ToF64
+  , f32ToF16
+  , f32ToF64
+  , f64ToF16
+  , f64ToF32
+
+  -- * 16-bit Floating point operations
+  , f16RoundToInt
+  , f16Add
+  , f16Sub
+  , f16Mul
+  , f16Div
+  , f16Rem
+  , f16Sqrt
+  , f16Eq
+  , f16Le
+  , f16Lt
+  , f16EqSignaling
+  , f16LeQuiet
+  , f16LtQuiet
+  , f16IsSignalingNaN
+
+  -- * 32-bit Floating point operations
+  , f32RoundToInt
+  , f32Add
+  , f32Sub
   , f32Mul
+  , f32Div
+  , f32Rem
+  , f32Sqrt
+  , f32Eq
+  , f32Le
+  , f32Lt
+  , f32EqSignaling
+  , f32LeQuiet
+  , f32LtQuiet
+  , f32IsSignalingNaN
+
+  -- * 64-bit Floating point operations
+  , f64RoundToInt
+  , f64Add
+  , f64Sub
+  , f64Mul
+  , f64Div
+  , f64Rem
+  , f64Sqrt
+  , f64Eq
+  , f64Le
+  , f64Lt
+  , f64EqSignaling
+  , f64LeQuiet
+  , f64LtQuiet
+  , f64IsSignalingNaN
+
   ) where
 
 import Control.Concurrent
@@ -96,6 +151,9 @@ data F32Result = F32Result Word32 ExceptionFlags
 
 -- | 64-bit floating point result.
 data F64Result = F64Result Word64 ExceptionFlags
+
+-- | Boolean result.
+data BoolResult = BoolResult Bool ExceptionFlags
 
 -- | Data type for specifying rounding mode to a floating point computation.
 data RoundingMode = RoundNearEven
@@ -152,6 +210,9 @@ doSoftfloatI32 = doSoftfloat I32Result
 
 doSoftfloatI64 :: RoundingMode -> IO Int64 -> I64Result
 doSoftfloatI64 = doSoftfloat I64Result
+
+doSoftfloatBool :: RoundingMode -> IO Int -> BoolResult
+doSoftfloatBool = doSoftfloat (\i ef -> BoolResult (i == 1) ef)
 
 ----------------------------------------------------------------------
 -- Integer to float conversions
@@ -245,10 +306,164 @@ f64ToI64 rm fa = doSoftfloatI64 rm (f64_to_i64 fa (fromIntegral $ fromEnum rm) 0
 ----------------------------------------------------------------------
 -- Float to float conversions
 
+f16ToF32 :: RoundingMode -> Word16 -> F32Result
+f16ToF32 rm fa = doSoftfloatF32 rm (f16_to_f32 fa)
+
+f16ToF64 :: RoundingMode -> Word16 -> F64Result
+f16ToF64 rm fa = doSoftfloatF64 rm (f16_to_f64 fa)
+
+f32ToF16 :: RoundingMode -> Word32 -> F16Result
+f32ToF16 rm fa = doSoftfloatF16 rm (f32_to_f16 fa)
+
+f32ToF64 :: RoundingMode -> Word32 -> F64Result
+f32ToF64 rm fa = doSoftfloatF64 rm (f32_to_f64 fa)
+
+f64ToF16 :: RoundingMode -> Word64 -> F16Result
+f64ToF16 rm fa = doSoftfloatF16 rm (f64_to_f16 fa)
+
+f64ToF32 :: RoundingMode -> Word64 -> F32Result
+f64ToF32 rm fa = doSoftfloatF32 rm (f64_to_f32 fa)
+
+----------------------------------------------------------------------
+-- 16-bit operations
+
+f16RoundToInt :: RoundingMode -> Word16 -> F16Result
+f16RoundToInt rm fa = doSoftfloatF16 rm (f16_roundToInt fa (fromIntegral $ fromEnum rm) 0x1)
+
+f16Add :: RoundingMode -> Word16 -> Word16 -> F16Result
+f16Add rm fa fb = doSoftfloatF16 rm (f16_add fa fb)
+
+f16Sub :: RoundingMode -> Word16 -> Word16 -> F16Result
+f16Sub rm fa fb = doSoftfloatF16 rm (f16_sub fa fb)
+
+f16Mul :: RoundingMode -> Word16 -> Word16 -> F16Result
+f16Mul rm fa fb = doSoftfloatF16 rm (f16_mul fa fb)
+
+f16Div :: RoundingMode -> Word16 -> Word16 -> F16Result
+f16Div rm fa fb = doSoftfloatF16 rm (f16_div fa fb)
+
+f16Rem :: RoundingMode -> Word16 -> Word16 -> F16Result
+f16Rem rm fa fb = doSoftfloatF16 rm (f16_rem fa fb)
+
+f16Sqrt :: RoundingMode -> Word16 -> F16Result
+f16Sqrt rm fa = doSoftfloatF16 rm (f16_sqrt fa)
+
+f16Eq :: RoundingMode -> Word16 -> Word16 -> BoolResult
+f16Eq rm fa fb = doSoftfloatBool rm (f16_eq fa fb)
+
+f16Le :: RoundingMode -> Word16 -> Word16 -> BoolResult
+f16Le rm fa fb = doSoftfloatBool rm (f16_le fa fb)
+
+f16Lt :: RoundingMode -> Word16 -> Word16 -> BoolResult
+f16Lt rm fa fb = doSoftfloatBool rm (f16_lt fa fb)
+
+f16EqSignaling :: RoundingMode -> Word16 -> Word16 -> BoolResult
+f16EqSignaling rm fa fb = doSoftfloatBool rm (f16_eq_signaling fa fb)
+
+f16LeQuiet :: RoundingMode -> Word16 -> Word16 -> BoolResult
+f16LeQuiet rm fa fb = doSoftfloatBool rm (f16_le_quiet fa fb)
+
+f16LtQuiet :: RoundingMode -> Word16 -> Word16 -> BoolResult
+f16LtQuiet rm fa fb = doSoftfloatBool rm (f16_lt_quiet fa fb)
+
+f16IsSignalingNaN :: RoundingMode -> Word16 -> BoolResult
+f16IsSignalingNaN rm fa = doSoftfloatBool rm (f16_isSignalingNaN fa)
+
 ----------------------------------------------------------------------
 -- 32-bit operations
 
+f32RoundToInt :: RoundingMode -> Word32 -> F32Result
+f32RoundToInt rm fa = doSoftfloatF32 rm (f32_roundToInt fa (fromIntegral $ fromEnum rm) 0x1)
 
--- | Multiplication of 32-bit floats.
+f32Add :: RoundingMode -> Word32 -> Word32 -> F32Result
+f32Add rm fa fb = doSoftfloatF32 rm (f32_add fa fb)
+
+f32Sub :: RoundingMode -> Word32 -> Word32 -> F32Result
+f32Sub rm fa fb = doSoftfloatF32 rm (f32_sub fa fb)
+
 f32Mul :: RoundingMode -> Word32 -> Word32 -> F32Result
 f32Mul rm fa fb = doSoftfloatF32 rm (f32_mul fa fb)
+
+f32Div :: RoundingMode -> Word32 -> Word32 -> F32Result
+f32Div rm fa fb = doSoftfloatF32 rm (f32_div fa fb)
+
+f32Rem :: RoundingMode -> Word32 -> Word32 -> F32Result
+f32Rem rm fa fb = doSoftfloatF32 rm (f32_rem fa fb)
+
+f32Sqrt :: RoundingMode -> Word32 -> F32Result
+f32Sqrt rm fa = doSoftfloatF32 rm (f32_sqrt fa)
+
+f32Eq :: RoundingMode -> Word32 -> Word32 -> BoolResult
+f32Eq rm fa fb = doSoftfloatBool rm (f32_eq fa fb)
+
+f32Le :: RoundingMode -> Word32 -> Word32 -> BoolResult
+f32Le rm fa fb = doSoftfloatBool rm (f32_le fa fb)
+
+f32Lt :: RoundingMode -> Word32 -> Word32 -> BoolResult
+f32Lt rm fa fb = doSoftfloatBool rm (f32_lt fa fb)
+
+f32EqSignaling :: RoundingMode -> Word32 -> Word32 -> BoolResult
+f32EqSignaling rm fa fb = doSoftfloatBool rm (f32_eq_signaling fa fb)
+
+f32LeQuiet :: RoundingMode -> Word32 -> Word32 -> BoolResult
+f32LeQuiet rm fa fb = doSoftfloatBool rm (f32_le_quiet fa fb)
+
+f32LtQuiet :: RoundingMode -> Word32 -> Word32 -> BoolResult
+f32LtQuiet rm fa fb = doSoftfloatBool rm (f32_lt_quiet fa fb)
+
+f32IsSignalingNaN :: RoundingMode -> Word32 -> BoolResult
+f32IsSignalingNaN rm fa = doSoftfloatBool rm (f32_isSignalingNaN fa)
+
+----------------------------------------------------------------------
+-- 64-bit operations
+
+f64RoundToInt :: RoundingMode -> Word64 -> F64Result
+f64RoundToInt rm fa = doSoftfloatF64 rm (f64_roundToInt fa (fromIntegral $ fromEnum rm) 0x1)
+
+f64Add :: RoundingMode -> Word64 -> Word64 -> F64Result
+f64Add rm fa fb = doSoftfloatF64 rm (f64_add fa fb)
+
+f64Sub :: RoundingMode -> Word64 -> Word64 -> F64Result
+f64Sub rm fa fb = doSoftfloatF64 rm (f64_sub fa fb)
+
+f64Mul :: RoundingMode -> Word64 -> Word64 -> F64Result
+f64Mul rm fa fb = doSoftfloatF64 rm (f64_mul fa fb)
+
+f64Div :: RoundingMode -> Word64 -> Word64 -> F64Result
+f64Div rm fa fb = doSoftfloatF64 rm (f64_div fa fb)
+
+f64Rem :: RoundingMode -> Word64 -> Word64 -> F64Result
+f64Rem rm fa fb = doSoftfloatF64 rm (f64_rem fa fb)
+
+f64Sqrt :: RoundingMode -> Word64 -> F64Result
+f64Sqrt rm fa = doSoftfloatF64 rm (f64_sqrt fa)
+
+f64Eq :: RoundingMode -> Word64 -> Word64 -> BoolResult
+f64Eq rm fa fb = doSoftfloatBool rm (f64_eq fa fb)
+
+f64Le :: RoundingMode -> Word64 -> Word64 -> BoolResult
+f64Le rm fa fb = doSoftfloatBool rm (f64_le fa fb)
+
+f64Lt :: RoundingMode -> Word64 -> Word64 -> BoolResult
+f64Lt rm fa fb = doSoftfloatBool rm (f64_lt fa fb)
+
+f64EqSignaling :: RoundingMode -> Word64 -> Word64 -> BoolResult
+f64EqSignaling rm fa fb = doSoftfloatBool rm (f64_eq_signaling fa fb)
+
+f64LeQuiet :: RoundingMode -> Word64 -> Word64 -> BoolResult
+f64LeQuiet rm fa fb = doSoftfloatBool rm (f64_le_quiet fa fb)
+
+f64LtQuiet :: RoundingMode -> Word64 -> Word64 -> BoolResult
+f64LtQuiet rm fa fb = doSoftfloatBool rm (f64_lt_quiet fa fb)
+
+f64IsSignalingNaN :: RoundingMode -> Word64 -> BoolResult
+f64IsSignalingNaN rm fa = doSoftfloatBool rm (f64_isSignalingNaN fa)
+
+
+-- foreign import ccall "f16_eq"   f16_eq   :: Word16 -> Word16 -> IO Int
+-- foreign import ccall "f16_le"   f16_le   :: Word16 -> Word16 -> IO Int
+-- foreign import ccall "f16_lt"   f16_lt   :: Word16 -> Word16 -> IO Int
+-- foreign import ccall "f16_eq_signaling" f16_eq_signaling :: Word16 -> Word16 -> IO Int
+-- foreign import ccall "f16_le_quiet"     f16_le_quiet     :: Word16 -> Word16 -> IO Int
+-- foreign import ccall "f16_lt_quiet"     f16_lt_quiet     :: Word16 -> Word16 -> IO Int
+-- foreign import ccall "f16_isSignalingNaN" f16_isSignalingNaN :: Word16 -> IO Int
