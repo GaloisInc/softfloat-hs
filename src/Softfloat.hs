@@ -18,10 +18,8 @@ module Softfloat
     F16Result(..)
   , F32Result(..)
   , F64Result(..)
-  , Ui16Result(..)
   , Ui32Result(..)
   , Ui64Result(..)
-  , I16Result(..)
   , I32Result(..)
   , I64Result(..)
   , ExceptionFlags(..)
@@ -47,8 +45,20 @@ module Softfloat
   , i64ToF64
 
   -- * Floating point to fixed-width integer conversions
-  , f32ToUi32
+  , f16ToUi32
+  , f16ToUi64
+  , f16ToI32
+  , f16ToI64
 
+  , f32ToUi32
+  , f32ToUi64
+  , f32ToI32
+  , f32ToI64
+
+  , f64ToUi32
+  , f64ToUi64
+  , f64ToI32
+  , f64ToI64
   -- * Floating point operations
   , f32Mul
   ) where
@@ -66,22 +76,16 @@ import Softfloat.Internal
 -- softfloatLock = unsafePerformIO (newMVar ())
 -- {-# NOINLINE softfloatLock #-}
 
--- | 16-bit unsigned integer result.
-data Ui16Result = Ui16Result Word16 ExceptionFlags
-
 -- | 32-bit unsigned integer result.
 data Ui32Result = Ui32Result Word32 ExceptionFlags
 
--- | 32-bit unsigned integer result.
+-- | 64-bit unsigned integer result.
 data Ui64Result = Ui64Result Word64 ExceptionFlags
-
--- | 16-bit signed integer result.
-data I16Result = I16Result Int16 ExceptionFlags
 
 -- | 32-bit signed integer result.
 data I32Result = I32Result Int32 ExceptionFlags
 
--- | 32-bit signed integer result.
+-- | 64-bit signed integer result.
 data I64Result = I64Result Int64 ExceptionFlags
 
 -- | 16-bit floating point result.
@@ -140,6 +144,15 @@ doSoftfloatF64 = doSoftfloat F64Result
 doSoftfloatUi32 :: RoundingMode -> IO Word32 -> Ui32Result
 doSoftfloatUi32 = doSoftfloat Ui32Result
 
+doSoftfloatUi64 :: RoundingMode -> IO Word64 -> Ui64Result
+doSoftfloatUi64 = doSoftfloat Ui64Result
+
+doSoftfloatI32 :: RoundingMode -> IO Int32 -> I32Result
+doSoftfloatI32 = doSoftfloat I32Result
+
+doSoftfloatI64 :: RoundingMode -> IO Int64 -> I64Result
+doSoftfloatI64 = doSoftfloat I64Result
+
 ----------------------------------------------------------------------
 -- Integer to float conversions
 
@@ -193,8 +206,44 @@ i64ToF64 rm a = doSoftfloatF64 rm (i64_to_f64 a)
 
 ----------------------------------------------------------------------
 -- Float to integer conversions
+f16ToUi32 :: RoundingMode -> Word16 -> Ui32Result
+f16ToUi32 rm fa = doSoftfloatUi32 rm (f16_to_ui32 fa (fromIntegral $ fromEnum rm) 0x1)
+
+f16ToUi64 :: RoundingMode -> Word16 -> Ui64Result
+f16ToUi64 rm fa = doSoftfloatUi64 rm (f16_to_ui64 fa (fromIntegral $ fromEnum rm) 0x1)
+
+f16ToI32 :: RoundingMode -> Word16 -> I32Result
+f16ToI32 rm fa = doSoftfloatI32 rm (f16_to_i32 fa (fromIntegral $ fromEnum rm) 0x1)
+
+f16ToI64 :: RoundingMode -> Word16 -> I64Result
+f16ToI64 rm fa = doSoftfloatI64 rm (f16_to_i64 fa (fromIntegral $ fromEnum rm) 0x1)
+
 f32ToUi32 :: RoundingMode -> Word32 -> Ui32Result
 f32ToUi32 rm fa = doSoftfloatUi32 rm (f32_to_ui32 fa (fromIntegral $ fromEnum rm) 0x1)
+
+f32ToUi64 :: RoundingMode -> Word32 -> Ui64Result
+f32ToUi64 rm fa = doSoftfloatUi64 rm (f32_to_ui64 fa (fromIntegral $ fromEnum rm) 0x1)
+
+f32ToI32 :: RoundingMode -> Word32 -> I32Result
+f32ToI32 rm fa = doSoftfloatI32 rm (f32_to_i32 fa (fromIntegral $ fromEnum rm) 0x1)
+
+f32ToI64 :: RoundingMode -> Word32 -> I64Result
+f32ToI64 rm fa = doSoftfloatI64 rm (f32_to_i64 fa (fromIntegral $ fromEnum rm) 0x1)
+
+f64ToUi32 :: RoundingMode -> Word64 -> Ui32Result
+f64ToUi32 rm fa = doSoftfloatUi32 rm (f64_to_ui32 fa (fromIntegral $ fromEnum rm) 0x1)
+
+f64ToUi64 :: RoundingMode -> Word64 -> Ui64Result
+f64ToUi64 rm fa = doSoftfloatUi64 rm (f64_to_ui64 fa (fromIntegral $ fromEnum rm) 0x1)
+
+f64ToI32 :: RoundingMode -> Word64 -> I32Result
+f64ToI32 rm fa = doSoftfloatI32 rm (f64_to_i32 fa (fromIntegral $ fromEnum rm) 0x1)
+
+f64ToI64 :: RoundingMode -> Word64 -> I64Result
+f64ToI64 rm fa = doSoftfloatI64 rm (f64_to_i64 fa (fromIntegral $ fromEnum rm) 0x1)
+
+----------------------------------------------------------------------
+-- Float to float conversions
 
 ----------------------------------------------------------------------
 -- 32-bit operations
