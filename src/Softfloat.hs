@@ -22,6 +22,7 @@ module Softfloat
   , Ui64Result(..)
   , I32Result(..)
   , I64Result(..)
+  , BoolResult(..)
   , ExceptionFlags(..)
 
   -- * Rounding
@@ -458,12 +459,3 @@ f64LtQuiet rm fa fb = doSoftfloatBool rm (f64_lt_quiet fa fb)
 
 f64IsSignalingNaN :: RoundingMode -> Word64 -> BoolResult
 f64IsSignalingNaN rm fa = doSoftfloatBool rm (f64_isSignalingNaN fa)
-
-
--- foreign import ccall "f16_eq"   f16_eq   :: Word16 -> Word16 -> IO Int
--- foreign import ccall "f16_le"   f16_le   :: Word16 -> Word16 -> IO Int
--- foreign import ccall "f16_lt"   f16_lt   :: Word16 -> Word16 -> IO Int
--- foreign import ccall "f16_eq_signaling" f16_eq_signaling :: Word16 -> Word16 -> IO Int
--- foreign import ccall "f16_le_quiet"     f16_le_quiet     :: Word16 -> Word16 -> IO Int
--- foreign import ccall "f16_lt_quiet"     f16_lt_quiet     :: Word16 -> Word16 -> IO Int
--- foreign import ccall "f16_isSignalingNaN" f16_isSignalingNaN :: Word16 -> IO Int
