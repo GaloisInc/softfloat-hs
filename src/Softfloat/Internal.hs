@@ -1,4 +1,4 @@
-module Softfloat.Internal
+module SoftFloat.Internal
   ( -- * Global variables
     exceptionFlags
   , roundingMode

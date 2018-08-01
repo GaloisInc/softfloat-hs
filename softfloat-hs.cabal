@@ -15,8 +15,8 @@ extra-source-files:  README.md
 
 library
   ghc-options:
-  exposed-modules:     Softfloat
-                     , Softfloat.Internal
+  exposed-modules:     SoftFloat
+                     , SoftFloat.Internal
   hs-source-dirs:      src
   extra-lib-dirs:      /usr/local/lib
   extra-libraries:     softfloat
@@ -29,7 +29,7 @@ executable test
   extra-lib-dirs:      /usr/local/lib
   extra-libraries:     softfloat
   main-is:             Main.hs
-  other-modules:       Softfloat
-                     , Softfloat.Internal
+  other-modules:       SoftFloat
+                     , SoftFloat.Internal
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
