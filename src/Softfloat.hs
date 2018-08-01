@@ -172,6 +172,7 @@ data ExceptionFlags = ExceptionFlags
   , overflow  :: Bool
   , infinite  :: Bool
   , invalid   :: Bool
+--  , flags :: Word8
   } deriving (Show)
 
 -- The doSoftfloatXX wrappers perform unsafe IO calls to the underlying Haskell FFI
@@ -185,11 +186,12 @@ doSoftfloat constructor rm ioRes = unsafePerformIO $ runInBoundThread $ do
   res <- ioRes
   flags <- peek exceptionFlags
   return $ constructor res $ ExceptionFlags
-    (flags .&. 0x1  == 1)
-    (flags .&. 0x2  == 1)
-    (flags .&. 0x4  == 1)
-    (flags .&. 0x8  == 1)
-    (flags .&. 0x10 == 1)
+    (flags .&. 0x1  == 0x1)
+    (flags .&. 0x2  == 0x2)
+    (flags .&. 0x4  == 0x4)
+    (flags .&. 0x8  == 0x8)
+    (flags .&. 0x10 == 0x10)
+--    flags
 
 doSoftfloatF16 :: RoundingMode -> IO Word16 -> F16Result
 doSoftfloatF16 = doSoftfloat F16Result
