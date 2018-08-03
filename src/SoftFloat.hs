@@ -123,6 +123,7 @@ import Control.Concurrent
 import Data.Bits
 import Data.Int
 import Data.Word
+import Foreign.C.Types
 import Foreign.Storable
 import System.IO.Unsafe
 
@@ -214,8 +215,8 @@ doSoftFloatI32 = doSoftFloat I32Result
 doSoftFloatI64 :: RoundingMode -> IO Int64 -> I64Result
 doSoftFloatI64 = doSoftFloat I64Result
 
-doSoftFloatBool :: RoundingMode -> IO Int -> BoolResult
-doSoftFloatBool = doSoftFloat (\i ef -> BoolResult (i == 1) ef)
+doSoftFloatBool :: RoundingMode -> IO CBool -> BoolResult
+doSoftFloatBool = doSoftFloat (\(CBool i) ef -> BoolResult (i == 1) ef)
 
 ----------------------------------------------------------------------
 -- Integer to float conversions

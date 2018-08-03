@@ -1,18 +1,21 @@
 module Main where
 
+import Foreign.Marshal.Alloc
+import Foreign.Ptr
 import Foreign.Storable
 import Numeric (showHex)
 import SoftFloat
+import SoftFloat.Internal
 
-printHex a = putStrLn $ "0x" ++ showHex a ""
+printHex a b = putStrLn $ "0x" ++ showHex a "" ++ ",  " ++ show b
 
 main = do
-  let F64Result fa fa_flags = ui64ToF64 RoundMin 1
-      F64Result fb fb_flags = ui64ToF64 RoundMin 7
-      F64Result fc fc_flags = f64Div RoundMin fa fb
-  printHex fa
-  print fa_flags
-  printHex fb
-  print fb_flags
-  printHex fc
-  print fc_flags
+  let F32Result fa fa_flags = ui32ToF32 RoundMin 0x1
+      F32Result fb fb_flags = ui32ToF32 RoundMin 0x3
+      F32Result fc fc_flags = f32Div RoundMin fa fb
+      F32Result fd fd_flags = f32Mul RoundMax fb fc
+  printHex fa fa_flags
+  printHex fb fb_flags
+  printHex fc fc_flags
+  printHex fd fd_flags
+
