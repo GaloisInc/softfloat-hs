@@ -74,6 +74,7 @@ module SoftFloat
   , f16Add
   , f16Sub
   , f16Mul
+  , f16MulAdd
   , f16Div
   , f16Rem
   , f16Sqrt
@@ -343,6 +344,9 @@ f16Sub rm fa fb = doSoftFloatF16 rm (f16_sub fa fb)
 f16Mul :: RoundingMode -> Word16 -> Word16 -> F16Result
 f16Mul rm fa fb = doSoftFloatF16 rm (f16_mul fa fb)
 
+f16MulAdd :: RoundingMode -> Word16 -> Word16 -> Word16 -> F16Result
+f16MulAdd rm fa fb fc = doSoftFloatF16 rm (f16_mulAdd fa fb fc)
+
 f16Div :: RoundingMode -> Word16 -> Word16 -> F16Result
 f16Div rm fa fb = doSoftFloatF16 rm (f16_div fa fb)
 
@@ -388,6 +392,9 @@ f32Sub rm fa fb = doSoftFloatF32 rm (f32_sub fa fb)
 f32Mul :: RoundingMode -> Word32 -> Word32 -> F32Result
 f32Mul rm fa fb = doSoftFloatF32 rm (f32_mul fa fb)
 
+f32MulAdd :: RoundingMode -> Word32 -> Word32 -> Word32 -> F32Result
+f32MulAdd rm fa fb fc = doSoftFloatF32 rm (f32_mulAdd fa fb fc)
+
 f32Div :: RoundingMode -> Word32 -> Word32 -> F32Result
 f32Div rm fa fb = doSoftFloatF32 rm (f32_div fa fb)
 
@@ -432,6 +439,9 @@ f64Sub rm fa fb = doSoftFloatF64 rm (f64_sub fa fb)
 
 f64Mul :: RoundingMode -> Word64 -> Word64 -> F64Result
 f64Mul rm fa fb = doSoftFloatF64 rm (f64_mul fa fb)
+
+f64MulAdd :: RoundingMode -> Word64 -> Word64 -> Word64 -> F64Result
+f64MulAdd rm fa fb fc = doSoftFloatF64 rm (f64_mulAdd fa fb fc)
 
 f64Div :: RoundingMode -> Word64 -> Word64 -> F64Result
 f64Div rm fa fb = doSoftFloatF64 rm (f64_div fa fb)

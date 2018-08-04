@@ -1,3 +1,10 @@
+/*
+ * Wrappers for softfloat functions. All functions beginning with the "hs_" prefix
+ * have the same signature as their softfloat counterparts, except that all floatXX_t
+ * types are changed to uintXX_t. This makes them more immediately compatible with
+ * the Haskell FFI.
+ */
+
 #include "softfloat_wrappers.h"
 
 /****************************************

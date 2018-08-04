@@ -51,6 +51,7 @@ module SoftFloat.Internal
   , f16_add
   , f16_sub
   , f16_mul
+  , f16_mulAdd
   , f16_div
   , f16_rem
   , f16_sqrt
@@ -67,6 +68,7 @@ module SoftFloat.Internal
   , f32_add
   , f32_sub
   , f32_mul
+  , f32_mulAdd
   , f32_div
   , f32_rem
   , f32_sqrt
@@ -83,6 +85,7 @@ module SoftFloat.Internal
   , f64_add
   , f64_sub
   , f64_mul
+  , f64_mulAdd
   , f64_div
   , f64_rem
   , f64_sqrt
@@ -153,6 +156,7 @@ foreign import ccall "softfloat_wrappers.h hs_f16_roundToInt" f16_roundToInt :: 
 foreign import ccall "softfloat_wrappers.h hs_f16_add"  f16_add  :: Word16 -> Word16 -> IO Word16
 foreign import ccall "softfloat_wrappers.h hs_f16_sub"  f16_sub  :: Word16 -> Word16 -> IO Word16
 foreign import ccall "softfloat_wrappers.h hs_f16_mul"  f16_mul  :: Word16 -> Word16 -> IO Word16
+foreign import ccall "softfloat_wrappers.h hs_f16_mulAdd"  f16_mulAdd  :: Word16 -> Word16 -> Word16 -> IO Word16
 foreign import ccall "softfloat_wrappers.h hs_f16_div"  f16_div  :: Word16 -> Word16 -> IO Word16
 foreign import ccall "softfloat_wrappers.h hs_f16_rem"  f16_rem  :: Word16 -> Word16 -> IO Word16
 foreign import ccall "softfloat_wrappers.h hs_f16_sqrt" f16_sqrt :: Word16 -> IO Word16
@@ -168,6 +172,7 @@ foreign import ccall "softfloat_wrappers.h hs_f32_roundToInt" f32_roundToInt :: 
 foreign import ccall "softfloat_wrappers.h hs_f32_add"  f32_add  :: Word32 -> Word32 -> IO Word32
 foreign import ccall "softfloat_wrappers.h hs_f32_sub"  f32_sub  :: Word32 -> Word32 -> IO Word32
 foreign import ccall "softfloat_wrappers.h hs_f32_mul"  f32_mul  :: Word32 -> Word32 -> IO Word32
+foreign import ccall "softfloat_wrappers.h hs_f32_mulAdd"  f32_mulAdd  :: Word32 -> Word32 -> Word32 -> IO Word32
 foreign import ccall "softfloat_wrappers.h hs_f32_div"  f32_div  :: Word32 -> Word32 -> IO Word32
 foreign import ccall "softfloat_wrappers.h hs_f32_rem"  f32_rem  :: Word32 -> Word32 -> IO Word32
 foreign import ccall "softfloat_wrappers.h hs_f32_sqrt" f32_sqrt :: Word32 -> IO Word32
@@ -183,6 +188,7 @@ foreign import ccall "softfloat_wrappers.h hs_f64_roundToInt" f64_roundToInt :: 
 foreign import ccall "softfloat_wrappers.h hs_f64_add"  f64_add  :: Word64 -> Word64 -> IO Word64
 foreign import ccall "softfloat_wrappers.h hs_f64_sub"  f64_sub  :: Word64 -> Word64 -> IO Word64
 foreign import ccall "softfloat_wrappers.h hs_f64_mul"  f64_mul  :: Word64 -> Word64 -> IO Word64
+foreign import ccall "softfloat_wrappers.h hs_f64_mulAdd"  f64_mulAdd  :: Word64 -> Word64 -> Word64 -> IO Word64
 foreign import ccall "softfloat_wrappers.h hs_f64_div"  f64_div  :: Word64 -> Word64 -> IO Word64
 foreign import ccall "softfloat_wrappers.h hs_f64_rem"  f64_rem  :: Word64 -> Word64 -> IO Word64
 foreign import ccall "softfloat_wrappers.h hs_f64_sqrt" f64_sqrt :: Word64 -> IO Word64
