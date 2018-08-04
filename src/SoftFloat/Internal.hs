@@ -103,7 +103,11 @@ import Data.Word
 import Foreign.C.Types
 import Foreign.Ptr
 
+-- | Pointer to 'softfloat_exceptionFlags' global variable. Most floating point
+-- operations update this variable.
 foreign import ccall "softfloat.h &softfloat_exceptionFlags" exceptionFlags :: Ptr Word8
+-- | Pointer to 'softfloat_roundingMode global variable. Most floating point
+-- operations implicitly use this variable.
 foreign import ccall "softfloat.h &softfloat_roundingMode"   roundingMode   :: Ptr Word8
 
 -- Integer to float conversion routines
