@@ -334,6 +334,7 @@ f16Rem rm fa fb = doSoftFloat rm (f16_rem fa fb)
 f16Sqrt :: RoundingMode -> Word16 -> F16Result
 f16Sqrt rm fa = doSoftFloat rm (f16_sqrt fa)
 
+-- TODO: Should comparisons take a rounding mode?
 f16Eq :: RoundingMode -> Word16 -> Word16 -> CBoolResult
 f16Eq rm fa fb = doSoftFloat rm (f16_eq fa fb)
 
