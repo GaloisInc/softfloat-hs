@@ -3,13 +3,34 @@
 Module      : SoftFloat
 Copyright   : (c) Benjamin Selfridge, 2018
                   Galois Inc.
-License     : None (yet)
+License     : BSD-3
 Maintainer  : benselfridge@galois.com
 Stability   : experimental
 Portability : portable
 
 This library provides a pure function interface to John Hauser's softfloat C library,
-supported by underlying impure FFI calls.
+supported by underlying impure FFI calls. We support all 16-, 32-, and 64-bit
+floating point operations that the original softfloat provides.
+
+We represent floating point data as 'Word16', 'Word32', and 'Word64' unsigned
+integers. We represent signed integers as 'Int32' and 'Int64'. We represent unsigned
+integers as 'Word32' and 'Word64'.
+
+Floating point functions fall into two major categories: type conversions, and
+floating point operations. All functions take a 'RoundingMode' as an initial
+argument, and return one of the above-mentioned data types, along with the resulting
+'ExceptionFlags' that would be set by the operation. The softfloat library reads and
+sets these variables implicitly. The point of this module is to provide the illusion
+that these variables are pure functions, by carefully ensuring they are reset to 0
+before every single function used in this library.
+
+The data types involved should be clear from the function names: In general, 'f16',
+'f32', and 'f64' refer to 16-, 32-, and 64-bit floats. 'i32' and 'i64' refer to
+signed 32- and 64-bit integers. 'ui32' and 'ui64' refer to unsigned 32- and 64-bit
+integers. We do not provide documentation for particular functions; instead, we
+classify them in broad categories and document those categories. The user of this
+module should be able to easily discern exactly what each individual function does
+from its name and category description.
 -}
 
 module SoftFloat
@@ -30,6 +51,8 @@ module SoftFloat
   , RoundingMode(..)
 
     -- * Fixed-width integer to floating point conversions
+    -- | Conversions from unsigned and signed 32- and 64-bit integers to all three
+    -- supported floating point types.
   , ui32ToF16
   , ui32ToF32
   , ui32ToF64
@@ -47,6 +70,8 @@ module SoftFloat
   , i64ToF64
 
   -- * Floating point to fixed-width integer conversions
+  -- | Conversions from all three supported floating point types to unsigned and
+  -- signed 32- and 64-bit integers.
   , f16ToUi32
   , f16ToUi64
   , f16ToI32
@@ -63,6 +88,7 @@ module SoftFloat
   , f64ToI64
 
   -- * Floating point to floating point conversions
+  -- | Conversions from one floating point format to another.
   , f16ToF32
   , f16ToF64
   , f32ToF16
@@ -71,6 +97,7 @@ module SoftFloat
   , f64ToF32
 
   -- * 16-bit Floating point operations
+  -- | All 16-bit floating point unary, binary, and comparison operations.
   , f16RoundToInt
   , f16Add
   , f16Sub
@@ -88,6 +115,7 @@ module SoftFloat
   , f16IsSignalingNaN
 
   -- * 32-bit Floating point operations
+  -- | All 32-bit floating point unary, binary, and comparison operations.
   , f32RoundToInt
   , f32Add
   , f32Sub
@@ -104,6 +132,7 @@ module SoftFloat
   , f32IsSignalingNaN
 
   -- * 64-bit Floating point operations
+  -- | All 64-bit floating point unary, binary, and comparison operations.
   , f64RoundToInt
   , f64Add
   , f64Sub
@@ -135,31 +164,19 @@ import SoftFloat.Internal
 -- softfloatLock = unsafePerformIO (newMVar ())
 -- {-# NOINLINE softfloatLock #-}
 
--- | Result of a floating point operation.
+-- | Result of a floating point operation. This is simply a wrapper for an arbitrary
+-- data type, providing the 'ExceptionFlags' that are raised by the operation. We
+-- also provide a set of type aliases for specific 'a's that are relevant to this
+-- module.
 data Result a = Result a ExceptionFlags
 
--- | 32-bit unsigned integer result.
 type Ui32Result = Result Word32
-
--- | 64-bit unsigned integer result.
 type Ui64Result = Result Word64
-
--- | 32-bit signed integer result.
 type I32Result = Result Int32
-
--- | 64-bit signed integer result.
 type I64Result = Result Int64
-
--- | 16-bit floating point result.
 type F16Result = Result Word16
-
--- | 32-bit floating point result.
 type F32Result = Result Word32
-
--- | 64-bit floating point result.
 type F64Result = Result Word64
-
--- | Boolean result.
 type CBoolResult = Result CBool
 
 -- | Data type for specifying rounding mode to a floating point computation.
@@ -180,10 +197,9 @@ data ExceptionFlags = ExceptionFlags
   , invalid   :: Bool
   } deriving (Show)
 
--- The doSoftFloatXX wrappers perform unsafe IO calls to the underlying Haskell FFI
--- calls in SoftFloat.Internal. These functions handle the obtaining of the
--- softfloatLock MVar to guard against data races with the global variables, and they
--- also access the exception flags and return them as part of the result.
+-- We use this function to "lift" impure FFI calls into pure functions via
+-- unsafePerformIO. Because the global variables that are accessed are thread local,
+-- we need to use runInBoundThread.
 doSoftFloat :: RoundingMode -> IO a -> Result a
 doSoftFloat rm ioRes = unsafePerformIO $ runInBoundThread $ do
   poke exceptionFlags 0x0
@@ -200,51 +216,39 @@ doSoftFloat rm ioRes = unsafePerformIO $ runInBoundThread $ do
 ----------------------------------------------------------------------
 -- Integer to float conversions
 
--- | Unsigned 32-bit integer to 16-bit float.
 ui32ToF16 :: RoundingMode -> Word32 -> F16Result
 ui32ToF16 rm a = doSoftFloat rm (ui32_to_f16 a)
 
--- | Unsigned 32-bit integer to 32-bit float.
 ui32ToF32 :: RoundingMode -> Word32 -> F32Result
 ui32ToF32 rm a = doSoftFloat rm (ui32_to_f32 a)
 
--- | Unsigned 32-bit integer to 64-bit float.
 ui32ToF64 :: RoundingMode -> Word32 -> F64Result
 ui32ToF64 rm a = doSoftFloat rm (ui32_to_f64 a)
 
--- | Signed 32-bit integer to 16-bit float.
 i32ToF16 :: RoundingMode -> Int32 -> F16Result
 i32ToF16 rm a = doSoftFloat rm (i32_to_f16 a)
 
--- | Signed 32-bit integer to 32-bit float.
 i32ToF32 :: RoundingMode -> Int32 -> F32Result
 i32ToF32 rm a = doSoftFloat rm (i32_to_f32 a)
 
--- | Signed 32-bit integer to 64-bit float.
 i32ToF64 :: RoundingMode -> Int32 -> F64Result
 i32ToF64 rm a = doSoftFloat rm (i32_to_f64 a)
 
--- | Unsigned 64-bit integer to 16-bit float.
 ui64ToF16 :: RoundingMode -> Word64 -> F16Result
 ui64ToF16 rm a = doSoftFloat rm (ui64_to_f16 a)
 
--- | Unsigned 64-bit integer to 32-bit float.
 ui64ToF32 :: RoundingMode -> Word64 -> F32Result
 ui64ToF32 rm a = doSoftFloat rm (ui64_to_f32 a)
 
--- | Unsigned 64-bit integer to 64-bit float.
 ui64ToF64 :: RoundingMode -> Word64 -> F64Result
 ui64ToF64 rm a = doSoftFloat rm (ui64_to_f64 a)
 
--- | Signed 64-bit integer to 16-bit float.
 i64ToF16 :: RoundingMode -> Int64 -> F16Result
 i64ToF16 rm a = doSoftFloat rm (i64_to_f16 a)
 
--- | Signed 64-bit integer to 32-bit float.
 i64ToF32 :: RoundingMode -> Int64 -> F32Result
 i64ToF32 rm a = doSoftFloat rm (i64_to_f32 a)
 
--- | Signed 64-bit integer to 64-bit float.
 i64ToF64 :: RoundingMode -> Int64 -> F64Result
 i64ToF64 rm a = doSoftFloat rm (i64_to_f64 a)
 

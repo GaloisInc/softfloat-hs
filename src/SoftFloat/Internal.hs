@@ -1,3 +1,15 @@
+{-|
+Module      : SoftFloat.Internal
+Copyright   : (c) Benjamin Selfridge, 2018
+                  Galois Inc.
+License     : BSD-3
+Maintainer  : benselfridge@galois.com
+Stability   : experimental
+Portability : portable
+
+This module provides the underlying impure FFI calls to softfloat.
+-}
+
 module SoftFloat.Internal
   ( -- * Global variables
     exceptionFlags

@@ -17,7 +17,8 @@ library
   ghc-options:
   exposed-modules:     SoftFloat
                      , SoftFloat.Internal
-  hs-source-dirs:      src
+                     , ParseTestVector
+  hs-source-dirs:      src, test
   include-dirs:        include
   c-sources:           csrc/softfloat_wrappers.c
   extra-lib-dirs:      /usr/local/lib
