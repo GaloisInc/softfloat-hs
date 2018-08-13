@@ -45,7 +45,7 @@ module SoftFloat
   , I32Result
   , I64Result
   , CBoolResult
-  , ExceptionFlags
+  , ExceptionFlags(..)
 
   -- * Rounding
   , RoundingMode(..)
