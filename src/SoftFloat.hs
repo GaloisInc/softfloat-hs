@@ -340,27 +340,26 @@ f16Rem rm fa fb = doSoftFloat rm (f16_rem fa fb)
 f16Sqrt :: RoundingMode -> Word16 -> F16Result
 f16Sqrt rm fa = doSoftFloat rm (f16_sqrt fa)
 
--- TODO: Should comparisons take a rounding mode?
-f16Eq :: RoundingMode -> Word16 -> Word16 -> CBoolResult
-f16Eq rm fa fb = doSoftFloat rm (f16_eq fa fb)
+f16Eq :: Word16 -> Word16 -> CBoolResult
+f16Eq fa fb = doSoftFloat RoundNearEven (f16_eq fa fb)
 
-f16Le :: RoundingMode -> Word16 -> Word16 -> CBoolResult
-f16Le rm fa fb = doSoftFloat rm (f16_le fa fb)
+f16Le :: Word16 -> Word16 -> CBoolResult
+f16Le fa fb = doSoftFloat RoundNearEven (f16_le fa fb)
 
-f16Lt :: RoundingMode -> Word16 -> Word16 -> CBoolResult
-f16Lt rm fa fb = doSoftFloat rm (f16_lt fa fb)
+f16Lt :: Word16 -> Word16 -> CBoolResult
+f16Lt fa fb = doSoftFloat RoundNearEven (f16_lt fa fb)
 
-f16EqSignaling :: RoundingMode -> Word16 -> Word16 -> CBoolResult
-f16EqSignaling rm fa fb = doSoftFloat rm (f16_eq_signaling fa fb)
+f16EqSignaling :: Word16 -> Word16 -> CBoolResult
+f16EqSignaling fa fb = doSoftFloat RoundNearEven (f16_eq_signaling fa fb)
 
-f16LeQuiet :: RoundingMode -> Word16 -> Word16 -> CBoolResult
-f16LeQuiet rm fa fb = doSoftFloat rm (f16_le_quiet fa fb)
+f16LeQuiet :: Word16 -> Word16 -> CBoolResult
+f16LeQuiet fa fb = doSoftFloat RoundNearEven (f16_le_quiet fa fb)
 
-f16LtQuiet :: RoundingMode -> Word16 -> Word16 -> CBoolResult
-f16LtQuiet rm fa fb = doSoftFloat rm (f16_lt_quiet fa fb)
+f16LtQuiet :: Word16 -> Word16 -> CBoolResult
+f16LtQuiet fa fb = doSoftFloat RoundNearEven (f16_lt_quiet fa fb)
 
-f16IsSignalingNaN :: RoundingMode -> Word16 -> CBoolResult
-f16IsSignalingNaN rm fa = doSoftFloat rm (f16_isSignalingNaN fa)
+f16IsSignalingNaN :: Word16 -> CBoolResult
+f16IsSignalingNaN fa = doSoftFloat RoundNearEven (f16_isSignalingNaN fa)
 
 ----------------------------------------------------------------------
 -- 32-bit operations
@@ -389,26 +388,26 @@ f32Rem rm fa fb = doSoftFloat rm (f32_rem fa fb)
 f32Sqrt :: RoundingMode -> Word32 -> F32Result
 f32Sqrt rm fa = doSoftFloat rm (f32_sqrt fa)
 
-f32Eq :: RoundingMode -> Word32 -> Word32 -> CBoolResult
-f32Eq rm fa fb = doSoftFloat rm (f32_eq fa fb)
+f32Eq :: Word32 -> Word32 -> CBoolResult
+f32Eq fa fb = doSoftFloat RoundNearEven (f32_eq fa fb)
 
-f32Le :: RoundingMode -> Word32 -> Word32 -> CBoolResult
-f32Le rm fa fb = doSoftFloat rm (f32_le fa fb)
+f32Le :: Word32 -> Word32 -> CBoolResult
+f32Le fa fb = doSoftFloat RoundNearEven (f32_le fa fb)
 
-f32Lt :: RoundingMode -> Word32 -> Word32 -> CBoolResult
-f32Lt rm fa fb = doSoftFloat rm (f32_lt fa fb)
+f32Lt :: Word32 -> Word32 -> CBoolResult
+f32Lt fa fb = doSoftFloat RoundNearEven (f32_lt fa fb)
 
-f32EqSignaling :: RoundingMode -> Word32 -> Word32 -> CBoolResult
-f32EqSignaling rm fa fb = doSoftFloat rm (f32_eq_signaling fa fb)
+f32EqSignaling :: Word32 -> Word32 -> CBoolResult
+f32EqSignaling fa fb = doSoftFloat RoundNearEven (f32_eq_signaling fa fb)
 
-f32LeQuiet :: RoundingMode -> Word32 -> Word32 -> CBoolResult
-f32LeQuiet rm fa fb = doSoftFloat rm (f32_le_quiet fa fb)
+f32LeQuiet :: Word32 -> Word32 -> CBoolResult
+f32LeQuiet fa fb = doSoftFloat RoundNearEven (f32_le_quiet fa fb)
 
-f32LtQuiet :: RoundingMode -> Word32 -> Word32 -> CBoolResult
-f32LtQuiet rm fa fb = doSoftFloat rm (f32_lt_quiet fa fb)
+f32LtQuiet :: Word32 -> Word32 -> CBoolResult
+f32LtQuiet fa fb = doSoftFloat RoundNearEven (f32_lt_quiet fa fb)
 
-f32IsSignalingNaN :: RoundingMode -> Word32 -> CBoolResult
-f32IsSignalingNaN rm fa = doSoftFloat rm (f32_isSignalingNaN fa)
+f32IsSignalingNaN :: Word32 -> CBoolResult
+f32IsSignalingNaN fa = doSoftFloat RoundNearEven (f32_isSignalingNaN fa)
 
 ----------------------------------------------------------------------
 -- 64-bit operations
@@ -437,23 +436,23 @@ f64Rem rm fa fb = doSoftFloat rm (f64_rem fa fb)
 f64Sqrt :: RoundingMode -> Word64 -> F64Result
 f64Sqrt rm fa = doSoftFloat rm (f64_sqrt fa)
 
-f64Eq :: RoundingMode -> Word64 -> Word64 -> CBoolResult
-f64Eq rm fa fb = doSoftFloat rm (f64_eq fa fb)
+f64Eq :: Word64 -> Word64 -> CBoolResult
+f64Eq fa fb = doSoftFloat RoundNearEven (f64_eq fa fb)
 
-f64Le :: RoundingMode -> Word64 -> Word64 -> CBoolResult
-f64Le rm fa fb = doSoftFloat rm (f64_le fa fb)
+f64Le :: Word64 -> Word64 -> CBoolResult
+f64Le fa fb = doSoftFloat RoundNearEven (f64_le fa fb)
 
-f64Lt :: RoundingMode -> Word64 -> Word64 -> CBoolResult
-f64Lt rm fa fb = doSoftFloat rm (f64_lt fa fb)
+f64Lt :: Word64 -> Word64 -> CBoolResult
+f64Lt fa fb = doSoftFloat RoundNearEven (f64_lt fa fb)
 
-f64EqSignaling :: RoundingMode -> Word64 -> Word64 -> CBoolResult
-f64EqSignaling rm fa fb = doSoftFloat rm (f64_eq_signaling fa fb)
+f64EqSignaling :: Word64 -> Word64 -> CBoolResult
+f64EqSignaling fa fb = doSoftFloat RoundNearEven (f64_eq_signaling fa fb)
 
-f64LeQuiet :: RoundingMode -> Word64 -> Word64 -> CBoolResult
-f64LeQuiet rm fa fb = doSoftFloat rm (f64_le_quiet fa fb)
+f64LeQuiet :: Word64 -> Word64 -> CBoolResult
+f64LeQuiet fa fb = doSoftFloat RoundNearEven (f64_le_quiet fa fb)
 
-f64LtQuiet :: RoundingMode -> Word64 -> Word64 -> CBoolResult
-f64LtQuiet rm fa fb = doSoftFloat rm (f64_lt_quiet fa fb)
+f64LtQuiet :: Word64 -> Word64 -> CBoolResult
+f64LtQuiet fa fb = doSoftFloat RoundNearEven (f64_lt_quiet fa fb)
 
-f64IsSignalingNaN :: RoundingMode -> Word64 -> CBoolResult
-f64IsSignalingNaN rm fa = doSoftFloat rm (f64_isSignalingNaN fa)
+f64IsSignalingNaN :: Word64 -> CBoolResult
+f64IsSignalingNaN fa = doSoftFloat RoundNearEven (f64_isSignalingNaN fa)
