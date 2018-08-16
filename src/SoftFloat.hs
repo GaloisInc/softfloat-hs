@@ -120,6 +120,7 @@ module SoftFloat
   , f32Add
   , f32Sub
   , f32Mul
+  , f32MulAdd
   , f32Div
   , f32Rem
   , f32Sqrt
@@ -137,6 +138,7 @@ module SoftFloat
   , f64Add
   , f64Sub
   , f64Mul
+  , f64MulAdd
   , f64Div
   , f64Rem
   , f64Sqrt
