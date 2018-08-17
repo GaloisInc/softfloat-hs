@@ -1,8 +1,8 @@
 name:                softfloat-hs
 version:             0.1.0
--- synopsis:
+synopsis:            Haskell bindings for SoftFloat.
 -- description:
-homepage:            https://github.com/benjaminselfridge/softfloat-hs#readme
+homepage:            https://github.com/GaloisInc/softfloat-hs
 license:             BSD3
 license-file:        LICENSE
 author:              Ben Selfridge
