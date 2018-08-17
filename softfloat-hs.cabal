@@ -1,5 +1,5 @@
 name:                softfloat-hs
-version:             0.1.0.0
+version:             0.1.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/benjaminselfridge/softfloat-hs#readme
@@ -14,26 +14,11 @@ cabal-version:       >=1.10
 extra-source-files:  README.md
 
 library
-  ghc-options:
   exposed-modules:     SoftFloat
                      , SoftFloat.Internal
   hs-source-dirs:      src
   include-dirs:        include
   c-sources:           csrc/softfloat_wrappers.c
-  extra-lib-dirs:      /usr/local/lib
   extra-libraries:     softfloat
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
-
--- executable test
---   ghc-options:         -threaded
---   hs-source-dirs:      src
---   extra-lib-dirs:      /usr/local/lib
---   c-sources:           csrc/softfloat_wrappers.c
---   include-dirs:        include
---   extra-libraries:     softfloat
---   main-is:             Main.hs
---   other-modules:       SoftFloat
---                      , SoftFloat.Internal
---   default-language:    Haskell2010
---   build-depends:       base >= 4.7 && < 5
