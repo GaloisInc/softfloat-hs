@@ -24,8 +24,11 @@ submodule, as well as a script to install it on OSX:
 $ git submodule init --update --recursive
 $ ./install-softfloat-osx.sh
 ```
-For non-OSX users, you will have to modify the call to GCC in order to dynamically
-link the library on your system.
+If you are on a Linux system, use:
+```shell
+$ git submodule init --update --recursive
+$ sudo ./install-softfloat-linux.sh
+```
 
 ## Step 2: Build softfloat-hs with stack
 ```shell
@@ -44,7 +47,6 @@ ExceptionFlags {inexact = False, underflow = False, overflow = False, infinite =
 > let Result y flags = ui32ToF32 RoundNearEven 3
 > showHex y ""
 "40400000"
-> let Result z flags = fDiv32 RoundNearEven x y
 > let Result z flags = f32Div RoundNearEven x y
 > showHex z ""
 "40f55555"
