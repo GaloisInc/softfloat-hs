@@ -135,7 +135,7 @@ uint16_t hs_f16_sub( uint16_t f_int, uint16_t g_int ) {
   float16_t f, g;
   f.v = f_int;
   g.v = g_int;
-  float16_t h = f16_add(f, g);
+  float16_t h = f16_sub(f, g);
   return h.v;
 }
 uint16_t hs_f16_mul( uint16_t f_int, uint16_t g_int ) {
@@ -273,7 +273,7 @@ uint32_t hs_f32_sub( uint32_t f_int, uint32_t g_int ) {
   float32_t f, g;
   f.v = f_int;
   g.v = g_int;
-  float32_t h = f32_add(f, g);
+  float32_t h = f32_sub(f, g);
   return h.v;
 }
 uint32_t hs_f32_mul( uint32_t f_int, uint32_t g_int ) {
@@ -411,7 +411,7 @@ uint64_t hs_f64_sub( uint64_t f_int, uint64_t g_int ) {
   float64_t f, g;
   f.v = f_int;
   g.v = g_int;
-  float64_t h = f64_add(f, g);
+  float64_t h = f64_sub(f, g);
   return h.v;
 }
 uint64_t hs_f64_mul( uint64_t f_int, uint64_t g_int ) {
