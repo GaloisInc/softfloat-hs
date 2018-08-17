@@ -15,7 +15,7 @@ Installation
 
 We assume you have already installed the Haskell `stack ` build tool
 
-** Step 1: Install softfloat
+## Step 1: Install softfloat
 SoftFloat is not too complicated to install, but it is best to build a dynamic
 library so that `softfloat-hs` can be loaded into ghci (which does not support
 statically linked C libraries). For convenience, we provide SoftFloat itself as a
@@ -27,12 +27,12 @@ $ ./install-softfloat-osx.sh
 For non-OSX users, you will have to modify the call to GCC in order to dynamically
 link the library on your system.
 
-** Step 2: Build softfloat-hs with stack
+## Step 2: Build softfloat-hs with stack
 ```shell
 stack build
 ```
 
-** Step 3: Test softfloat-hs
+## Step 3: Test softfloat-hs
 ```shell
 stack ghci
 > let Result x flags = ui32ToF32 RoundNearEven 23
