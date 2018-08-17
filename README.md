@@ -13,14 +13,44 @@ library are captured as input arguments and additional outputs of each function.
 Installation
 ===
 
-This library assumes that you have softfloat installed at the following locations:
+We assume you have already installed the Haskell `stack ` build tool
 
-/usr/local/include/softfloat.h
-/usr/local/include/softfloat_types.h
-/usr/local/lib/libsoftfloat.a
+** Step 1: Install softfloat
+SoftFloat is not too complicated to install, but it is best to build a dynamic
+library so that `softfloat-hs` can be loaded into ghci (which does not support
+statically linked C libraries). For convenience, we provide SoftFloat itself as a
+submodule, as well as a script to install it on OSX:
+```shell
+$ git submodule init --update --recursive
+$ ./install-softfloat-osx.sh
+```
+For non-OSX users, you will have to modify the call to GCC in order to dynamically
+link the library on your system.
 
-Once those have been installed, "stack build" should work. Feel free to create an
-issue on github if you have any trouble.
+** Step 2: Build softfloat-hs with stack
+```shell
+stack build
+```
+
+** Step 3: Test softfloat-hs
+```shell
+stack ghci
+> let Result x flags = ui32ToF32 RoundNearEven 23
+> :m +Numeric
+> showHex x ""
+"41b80000"
+> flags
+ExceptionFlags {inexact = False, underflow = False, overflow = False, infinite = False, invalid = False}
+> let Result y flags = ui32ToF32 RoundNearEven 3
+> showHex y ""
+"40400000"
+> let Result z flags = fDiv32 RoundNearEven x y
+> let Result z flags = f32Div RoundNearEven x y
+> showHex z ""
+"40f55555"
+> flags
+ExceptionFlags {inexact = True, underflow = False, overflow = False, infinite = False, invalid = False}
+```
 
 Requirements
 ===

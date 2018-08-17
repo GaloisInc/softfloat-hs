@@ -10,10 +10,16 @@ SYSTEM=Linux-x86_64-GCC
 # SYSTEM=template-FAST_INT64
 # SYSTEM=template-not-FAST_INT64
 
+# SPECIALIZE_TYPE=8086-SSE
+# SPECIALIZE_TYPE=8086
+# SPECIALIZE_TYPE=ARM-VFPv2-defaultNaN
+# SPECIALIZE_TYPE=ARM-VFPv2
+SPECIALIZE_TYPE=RISCV
+
 set -x
 
 cd berkeley-softfloat-3/build/$SYSTEM/
-make SPECIALIZE_TYPE=RISCV
+make SPECIALIZE_TYPE=$SPECIALIZE_TYPE
 gcc -dynamiclib -o /usr/local/lib/libsoftfloat.dylib *.o
 cp ../../source/include/softfloat_types.h /usr/local/include
 cp ../../source/include/softfloat.h /usr/local/include
