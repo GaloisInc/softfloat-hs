@@ -44,7 +44,6 @@ ExceptionFlags {inexact = False, underflow = False, overflow = False, infinite =
 > let Result y flags = ui32ToF32 RoundNearEven 3
 > showHex y ""
 "40400000"
-> let Result z flags = fDiv32 RoundNearEven x y
 > let Result z flags = f32Div RoundNearEven x y
 > showHex z ""
 "40f55555"
