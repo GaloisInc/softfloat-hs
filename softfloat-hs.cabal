@@ -1,14 +1,16 @@
 name:                softfloat-hs
 version:             0.1.0
-synopsis:            Haskell bindings for SoftFloat.
--- description:
+synopsis:            Haskell bindings for SoftFloat
+description:
+  Provides a pure functional interface to John Hauser's SoftFloat, an implementation
+  of IEEE floating point in the C programming language.
 homepage:            https://github.com/GaloisInc/softfloat-hs
 license:             BSD3
 license-file:        LICENSE
 author:              Ben Selfridge
 maintainer:          benselfridge@galois.com
 copyright:           March 2018
-category:            RISC-V
+category:            Math
 build-type:          Simple
 cabal-version:       >=1.10
 extra-source-files:  README.md
