@@ -24,6 +24,6 @@ cd berkeley-softfloat-3/build/$SYSTEM/
 make SPECIALIZE_TYPE=$COMPILE_TYPE SOFTFLOAT_OPTS="-DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 \
                 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 \
                 -fpic"
-gcc -shared -o /usr/lib/libsoftfloat.so *.o
+sudo gcc -shared -o /usr/lib/libsoftfloat.so *.o
 sudo cp ../../source/include/softfloat_types.h /usr/include
 sudo cp ../../source/include/softfloat.h /usr/include

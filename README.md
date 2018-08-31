@@ -21,12 +21,12 @@ library so that `softfloat-hs` can be loaded into ghci (which does not support
 statically linked C libraries). For convenience, we provide SoftFloat itself as a
 submodule, as well as a script to install it on OSX:
 ```shell
-$ git submodule init --update --recursive
+$ git submodule update --init --recursive
 $ ./install-softfloat-osx.sh
 ```
 If you are on a Linux system, use:
 ```shell
-$ git submodule init --update --recursive
+$ git submodule update --init --recursive
 $ sudo ./install-softfloat-linux.sh
 ```
 
