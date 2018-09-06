@@ -170,7 +170,7 @@ import SoftFloat.Internal
 -- data type, providing the 'ExceptionFlags' that are raised by the operation. We
 -- also provide a set of type aliases for specific 'a's that are relevant to this
 -- module.
-data Result a = Result a ExceptionFlags
+data Result a = Result a ExceptionFlags deriving (Eq)
 
 type Ui32Result = Result Word32
 type Ui64Result = Result Word64
@@ -197,7 +197,7 @@ data ExceptionFlags = ExceptionFlags
   , overflow  :: Bool
   , infinite  :: Bool
   , invalid   :: Bool
-  } deriving (Show)
+  } deriving (Show, Eq)
 
 -- We use this function to "lift" impure FFI calls into pure functions via
 -- unsafePerformIO. Because the global variables that are accessed are thread local,
