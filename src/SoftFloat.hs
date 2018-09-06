@@ -1,4 +1,3 @@
-
 {-|
 Module      : SoftFloat
 Copyright   : (c) Benjamin Selfridge, 2018
@@ -32,7 +31,8 @@ classify them in broad categories and document those categories. The user of thi
 module should be able to easily discern exactly what each individual function does
 from its name and category description.
 -}
-
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 module SoftFloat
   (
     -- * Result of floating-point computations
@@ -159,6 +159,8 @@ import Data.Word
 import Foreign.C.Types
 import Foreign.Storable
 import System.IO.Unsafe
+import Numeric (showIntAtBase)
+import Data.Char (intToDigit)
 
 import SoftFloat.Internal
 
@@ -170,7 +172,7 @@ import SoftFloat.Internal
 -- data type, providing the 'ExceptionFlags' that are raised by the operation. We
 -- also provide a set of type aliases for specific 'a's that are relevant to this
 -- module.
-data Result a = Result a ExceptionFlags deriving (Eq)
+data Result a = Result a ExceptionFlags
 
 type Ui32Result = Result Word32
 type Ui64Result = Result Word64
@@ -180,6 +182,36 @@ type F16Result = Result Word16
 type F32Result = Result Word32
 type F64Result = Result Word64
 type CBoolResult = Result CBool
+
+instance Eq F32Result where
+  (==) (Result r1 ex1) (Result r2 ex2) = if compareIOUFlags
+                                         then (ex1 == ex2)
+                                         else (r1 == r2) && (ex1 == ex2)
+    where
+      -- if either invalid/underflow/overflow flags are set,
+      -- check only if the flags are equal
+      -- otherwise check the flags and the numbers
+      compareIOUFlags = (True && invalid ex1 && invalid ex2) ||
+                        (True && underflow ex1 && underflow ex2) ||
+                        (True && overflow ex1 && overflow ex2)
+                        
+instance Show F16Result where
+  show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
+    where
+        binRaw = (showIntAtBase 16 intToDigit r "")
+        binPadded = (replicate (4 - length binRaw) '0') ++ binRaw
+
+instance Show F32Result where
+  show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
+    where
+        binRaw = (showIntAtBase 16 intToDigit r "")
+        binPadded = (replicate (8 - length binRaw) '0') ++ binRaw
+
+instance Show F64Result where
+  show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
+    where
+        binRaw = (showIntAtBase 16 intToDigit r "")
+        binPadded = (replicate (16 - length binRaw) '0') ++ binRaw
 
 -- | Data type for specifying rounding mode to a floating point computation.
 data RoundingMode = RoundNearEven
@@ -192,12 +224,22 @@ data RoundingMode = RoundNearEven
 
 -- | Exception flags returned by a floating point computation.
 data ExceptionFlags = ExceptionFlags
-  { inexact   :: Bool
-  , underflow :: Bool
-  , overflow  :: Bool
-  , infinite  :: Bool
-  , invalid   :: Bool
-  } deriving (Show, Eq)
+  { inexact   :: Bool -- x
+  , underflow :: Bool -- u
+  , overflow  :: Bool -- o
+  , infinite  :: Bool -- z (division by zero)
+  , invalid   :: Bool -- i
+  } deriving (Eq)
+
+instance Show ExceptionFlags where
+  show (ExceptionFlags x u o z i) = (display x "x") ++
+                                    (display u "u") ++
+                                    (display o "o") ++
+                                    (display z "z") ++
+                                    (display i "i")
+    where
+      display v s | v == True = s
+                  | otherwise = "" 
 
 -- We use this function to "lift" impure FFI calls into pure functions via
 -- unsafePerformIO. Because the global variables that are accessed are thread local,
