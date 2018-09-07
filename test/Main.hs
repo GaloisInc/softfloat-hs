@@ -23,7 +23,7 @@ data FloatType =   B32 -- b32 Word32
     deriving (Show, Eq)
 
 data FloatOperation = Add -- +
-                    | Subtract -- - 
+                    | Subtract -- -
                     | Multiply -- *
                     | Divide -- /
                     | MultiplyAdd -- *+
@@ -45,7 +45,7 @@ data FloatOperation = Add -- +
                     | LogB -- L NOT USED
                     | NextAfter -- Na NOT USED
                     | Class -- ? NOT USED
-                    | IsSigned -- ?- 
+                    | IsSigned -- ?-
                     | IsNormal -- ?n
                     | IsFinite -- ?f for isfinite
                     | IsZero -- ?0
@@ -161,7 +161,7 @@ parseException flags = ExceptionFlags {
         infiniteFlag = foldl (\x y -> x || (infinite y)) False flags
         invalidFlag = foldl (\x y -> x || (invalid y)) False flags
 
-{-- Structure encompassing all necessary operation for a single 
+{-- Structure encompassing all necessary operation for a single
     fpGen test operation
 --}
 data FpGenOperation = FpGenOperation
@@ -301,7 +301,7 @@ testParsec str = do
             putStrLn (show err)
 
 testSuite :: String
-testSuite = "/home/michal/Workspace/BESSPIN/fpgen/test_suite/"
+testSuite = "./test/fpgen/test_suite/"
 
 main :: IO ()
 main = do
@@ -332,7 +332,7 @@ main = do
                                 putStrLn line
                                 putStrLn $ "Error: " ++ err
                                 putStrLn "\n"
-                            else return ()    
+                            else return ()
                             {--
                             putStrLn $ "Line " ++ (show (lineNumber :: Integer))
                             putStrLn line
@@ -356,7 +356,7 @@ main = do
                             else exitFailure
                             --}
                             --return ()
-                            
+
                 Left err -> do
                     putStrLn $ "Line " ++ (show (lineNumber :: Integer))
                     putStrLn line
@@ -364,11 +364,11 @@ main = do
     putStrLn "All good, exiting!"
 
 checkOpArguments :: FpGenOperation -> Bool
-checkOpArguments fp = 
+checkOpArguments fp =
                 case _operation fp of
                     -- 1 argument
                     op | op `elem` [Abs, Copy, Negate, SquareRoot,
-                                    IsSigned, IsNormal,IsFinite, 
+                                    IsSigned, IsNormal,IsFinite,
                                     IsZero, IsSubNormal, IsInf, IsNan, IsSignaling,
                                     ConvertFloatToFloat]
                      -> if (length types ==1) && (length inputs == 1)
