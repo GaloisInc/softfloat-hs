@@ -32,6 +32,9 @@ TESTFLOAT_PATH = berkeley-testfloat-3/build/$(SYSTEM)
 
 all: softfloat testfloat
 
+uninstall: clean
+	sudo rm /usr/lib/libsoftfloat.so
+
 install: all
 	sudo cp lib/libsoftfloat.so /usr/lib/libsoftfloat.so
 
