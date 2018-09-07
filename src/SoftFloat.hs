@@ -172,7 +172,7 @@ import SoftFloat.Internal
 -- data type, providing the 'ExceptionFlags' that are raised by the operation. We
 -- also provide a set of type aliases for specific 'a's that are relevant to this
 -- module.
-data Result a = Result a ExceptionFlags
+data Result a = Result a ExceptionFlags deriving (Eq)
 
 type Ui32Result = Result Word32
 type Ui64Result = Result Word64
@@ -182,18 +182,6 @@ type F16Result = Result Word16
 type F32Result = Result Word32
 type F64Result = Result Word64
 type CBoolResult = Result CBool
-
-instance Eq F32Result where
-  (==) (Result r1 ex1) (Result r2 ex2) = if compareIOUFlags
-                                         then (ex1 == ex2)
-                                         else (r1 == r2) && (ex1 == ex2)
-    where
-      -- if either invalid/underflow/overflow flags are set,
-      -- check only if the flags are equal
-      -- otherwise check the flags and the numbers
-      compareIOUFlags = (True && invalid ex1 && invalid ex2) ||
-                        (True && underflow ex1 && underflow ex2) ||
-                        (True && overflow ex1 && overflow ex2)
                         
 instance Show F16Result where
   show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
