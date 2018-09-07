@@ -13,6 +13,8 @@ import Numeric (showIntAtBase)
 import Data.Char (intToDigit)
 import Control.Applicative
 import Data.List (isInfixOf)
+import System.Process (readProcess)
+
 
 data FloatType =   B32 -- b32 Word32
                  | B64 -- b64 Word64
@@ -22,6 +24,21 @@ data FloatType =   B32 -- b32 Word32
                  | D64 -- d64
                  | D128 -- d128
     deriving (Show, Eq)
+
+testFloatGen = "/home/michal/Workspace/BESSPIN/TestFloat-3e/build/Linux-x86_64-GCC/testfloat_gen"
+
+testCommand = do
+    x <- readProcess testFloatGen ["f32_add"] []
+    putStrLn $ head $ lines x
+
+{--
+data MyStruct a = A FloatType | B FloatType
+
+myStruct :: FloatType -> [String] -> MyStruct FloatType
+myStruct t s = case t of
+                B32 -> A t
+                _ -> B t
+                --}
 
 data FloatOperation = Add -- +
                     | Subtract -- - 
@@ -484,7 +501,7 @@ executeOperation fp = do
     where
         evalResults fpgenResult softFloatResult = evalTest (fpgenResult == softFloatResult)
                         ("Results are not matching.\n\n" ++
-                        "Fpgen      " ++ show fpgenResult ++ "\n" ++
+                        "Fpgen:     " ++ show fpgenResult ++ "\n" ++
                         "Softfloat: " ++ show softFloatResult
                         ++ "\n\n" ++ show fp)
 
@@ -494,7 +511,3 @@ executeOperation fp = do
 
         testB32 :: Bool
         testB32 = and (map (== B32) (_types fp))
-
-        --wordToBool :: Word32 -> CBool
-        --wordToBool w | w == 1 = 1
-        --             | otherwise = 0

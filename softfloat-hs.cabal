@@ -35,4 +35,5 @@ executable fpgen-test
   build-depends:       base,
                        softfloat-hs,
                        parsec,
-                       directory
+                       directory,
+                       process
