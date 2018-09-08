@@ -208,7 +208,7 @@ data RoundingMode = RoundNearEven
                   | RoundMax
                   | RoundNearMaxMag
                   | RoundOdd
-  deriving (Enum, Show)
+  deriving (Enum, Show, Eq)
 
 -- | Exception flags returned by a floating point computation.
 data ExceptionFlags = ExceptionFlags

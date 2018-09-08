@@ -22,7 +22,6 @@ library
   include-dirs:        include
   c-sources:           csrc/softfloat_wrappers.c
   ghc-options:         -Wall
-  --extra-lib-dirs:      libs
   extra-libraries:     softfloat
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
@@ -36,4 +35,14 @@ executable fpgen-test
                        softfloat-hs,
                        parsec,
                        directory,
+                       process
+
+executable softfloat-test
+  hs-source-dirs:      test
+  main-is:             Testfloat.hs
+  ghc-options:         -threaded -Wall
+  default-language:    Haskell2010
+  build-depends:       base,
+                       softfloat-hs,
+                       split,
                        process

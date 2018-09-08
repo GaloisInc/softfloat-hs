@@ -1,4 +1,4 @@
-module Main where
+module Fpgen where
 
 import SoftFloat
 import System.Directory
