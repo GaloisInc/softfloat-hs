@@ -172,7 +172,8 @@ import SoftFloat.Internal
 -- data type, providing the 'ExceptionFlags' that are raised by the operation. We
 -- also provide a set of type aliases for specific 'a's that are relevant to this
 -- module.
-data Result a = Result a ExceptionFlags deriving (Eq)
+data Result a = Result a ExceptionFlags
+  deriving (Eq, Show)
 
 type Ui32Result = Result Word32
 type Ui64Result = Result Word64
@@ -182,24 +183,28 @@ type F16Result = Result Word16
 type F32Result = Result Word32
 type F64Result = Result Word64
 type CBoolResult = Result CBool
-                        
-instance Show F16Result where
-  show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
-    where
-        binRaw = (showIntAtBase 16 intToDigit r "")
-        binPadded = (replicate (4 - length binRaw) '0') ++ binRaw
 
-instance Show F32Result where
-  show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
-    where
-        binRaw = (showIntAtBase 16 intToDigit r "")
-        binPadded = (replicate (8 - length binRaw) '0') ++ binRaw
+-- TODO Michal: If you need this kind of pretty printing, create a separate function for
+-- it. Show instances should general be as boilerplate as possible so as to preserve
+-- compatibility with the 'Read' type class.
 
-instance Show F64Result where
-  show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
-    where
-        binRaw = (showIntAtBase 16 intToDigit r "")
-        binPadded = (replicate (16 - length binRaw) '0') ++ binRaw
+-- instance Show F16Result where
+--   show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
+--     where
+--         binRaw = (showIntAtBase 16 intToDigit r "")
+--         binPadded = (replicate (4 - length binRaw) '0') ++ binRaw
+
+-- instance Show F32Result where
+--   show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
+--     where
+--         binRaw = (showIntAtBase 16 intToDigit r "")
+--         binPadded = (replicate (8 - length binRaw) '0') ++ binRaw
+
+-- instance Show F64Result where
+--   show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
+--     where
+--         binRaw = (showIntAtBase 16 intToDigit r "")
+--         binPadded = (replicate (16 - length binRaw) '0') ++ binRaw
 
 -- | Data type for specifying rounding mode to a floating point computation.
 data RoundingMode = RoundNearEven
@@ -217,17 +222,21 @@ data ExceptionFlags = ExceptionFlags
   , overflow  :: Bool -- o
   , infinite  :: Bool -- z (division by zero)
   , invalid   :: Bool -- i
-  } deriving (Eq)
+  } deriving (Eq, Show)
 
-instance Show ExceptionFlags where
-  show (ExceptionFlags x u o z i) = (display x "x") ++
-                                    (display u "u") ++
-                                    (display o "o") ++
-                                    (display z "z") ++
-                                    (display i "i")
-    where
-      display v s | v == True = s
-                  | otherwise = "" 
+-- TODO Michal: again, feel free to write a prettyFlags :: ExceptionFlags -> String
+-- function if you like, but you should basically always use deriving Show for Show
+-- instances.
+
+-- instance Show ExceptionFlags where
+--   show (ExceptionFlags x u o z i) = (display x "x") ++
+--                                     (display u "u") ++
+--                                     (display o "o") ++
+--                                     (display z "z") ++ 
+--                                     (display i "i")
+--     where
+--       display v s | v == True = s
+--                   | otherwise = ""
 
 -- We use this function to "lift" impure FFI calls into pure functions via
 -- unsafePerformIO. Because the global variables that are accessed are thread local,
