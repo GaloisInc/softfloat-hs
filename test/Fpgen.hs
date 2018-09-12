@@ -1,4 +1,4 @@
-module Fpgen where
+module Main where
 
 import SoftFloat
 import System.Directory
@@ -455,13 +455,6 @@ executeOperation fp = do
                     Right "`IsNan` Not implemented, skipping"
                 IsSignaling -> do
                     Right "`IsSignaling` Not implemented, skipping"
-                    {-- TODO: Is this the right function?
-                    -- f32IsSignalingNaN :: Word32 -> CBoolResult
-                    let softFloatResult = f32IsSignalingNaN (args !! 0)
-                    let myResult = Result (wordToBool (args !! 1)) (_outputExceptions fp)
-                    evalTest (myResult == softFloatResult)
-                        ("Results are not matching. " ++ show fp ++ show myResult ++ show softFloatResult)
-                    --}
                 Abs -> do
                     Right "`Abs` Not implemented, skipping"
                 Copy -> do

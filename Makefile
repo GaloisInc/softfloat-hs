@@ -30,12 +30,15 @@ endif
 SOFTFLOAT_PATH = berkeley-softfloat-3/build/$(SYSTEM)
 TESTFLOAT_PATH = berkeley-testfloat-3/build/$(SYSTEM)
 
-all: softfloat testfloat
+all: softfloat testfloat fenv
+
+fenv:
+	cd test/fenv && make
 
 uninstall: clean
 	sudo rm /usr/lib/libsoftfloat.so
 
-install: all
+install:
 	sudo cp lib/libsoftfloat.so /usr/lib/libsoftfloat.so
 
 softfloat:
