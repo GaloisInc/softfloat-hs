@@ -18,7 +18,7 @@ genPath :: String
 genPath = "lib/testfloat_gen"
 
 baseArgs :: [String]
-baseArgs = ["-level","1","-exact","-seed","1"]
+baseArgs = ["-n","6133248","-exact","-seed","1"]
 
 -- full test:
 -- TODO: add command line options, such as seed etc
