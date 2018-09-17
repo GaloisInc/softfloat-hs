@@ -1,3 +1,12 @@
+{-
+Fpgen test module, reads fpgen generated test vectors and tests them against
+softfloat-hs. Note that in case of an error, a warning is printed on the stdout
+and the test continues, so it is recommended to forward the stdout to a file, for example
+
+```
+cabal new-run fpgen-test > out.log
+```
+-}
 module Main where
 
 import SoftFloat
@@ -169,8 +178,8 @@ data FpGenOperation = FpGenOperation
     , _operation :: FloatOperation
     , _roundingMode :: RoundingMode
     , _trappedExceptions :: ExceptionFlags
-    , _inputsFloat :: [String] -- TODO
-    , _outputFloat :: String -- TODO
+    , _inputsFloat :: [String]
+    , _outputFloat :: String
     , _outputExceptions :: ExceptionFlags
     }
     deriving (Show)
@@ -318,12 +327,6 @@ main = do
                     let res = executeOperation op
                     case res of
                         Right _s -> do
-                            {--
-                            if length s > 1
-                            then do
-                                putStrLn $ "Warning: " ++ s
-                            else return ()
-                            --}
                             return ()
                         Left err -> do
                             if isInfixOf "Results are not matching" err
@@ -333,30 +336,6 @@ main = do
                                 putStrLn $ "Error: " ++ err
                                 putStrLn "\n"
                             else return ()
-                            {--
-                            putStrLn $ "Line " ++ (show (lineNumber :: Integer))
-                            putStrLn line
-                            putStrLn $ "Error: " ++ err
-                            --}
-                            {--
-                            if isInfixOf "Unsupported operation" err
-                            then exitFailure
-                            else return ()
-                            --}
-                            {--
-                            putStrLn "Continue? [Y/n]"
-                            input <- getLine
-                            if input == "Y"
-                            then return ()
-                            else exitFailure
-                            --}
-                            {--
-                            if isInfixOf "Warning" err
-                            then return ()
-                            else exitFailure
-                            --}
-                            --return ()
-
                 Left err -> do
                     putStrLn $ "Line " ++ (show (lineNumber :: Integer))
                     putStrLn line
