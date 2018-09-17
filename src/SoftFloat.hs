@@ -213,7 +213,15 @@ data RoundingMode = RoundNearEven
                   | RoundMax
                   | RoundNearMaxMag
                   | RoundOdd
-  deriving (Enum, Show, Eq)
+  deriving (Show, Eq)
+
+roundingModeToInt :: (Integral a) => RoundingMode -> a
+roundingModeToInt RoundNearEven = 0
+roundingModeToInt RoundMinMag = 1
+roundingModeToInt RoundMin = 2
+roundingModeToInt RoundMax = 3
+roundingModeToInt RoundNearMaxMag = 4
+roundingModeToInt RoundOdd = 6
 
 -- | Exception flags returned by a floating point computation.
 data ExceptionFlags = ExceptionFlags
@@ -240,7 +248,7 @@ instance Show ExceptionFlags where
 doSoftFloat :: RoundingMode -> IO a -> Result a
 doSoftFloat rm ioRes = unsafePerformIO $ runInBoundThread $ do
   poke exceptionFlags 0x0
-  poke roundingMode (fromIntegral $ fromEnum rm)
+  poke roundingMode (roundingModeToInt rm)
   res <- ioRes
   flags <- peek exceptionFlags
   return $ Result res $ ExceptionFlags
@@ -296,40 +304,40 @@ i64ToF64 rm a = doSoftFloat rm (i64_to_f64 a)
 ----------------------------------------------------------------------
 -- Float to integer conversions
 f16ToUi32 :: RoundingMode -> Word16 -> Ui32Result
-f16ToUi32 rm fa = doSoftFloat rm (f16_to_ui32 fa (fromIntegral $ fromEnum rm) 0x1)
+f16ToUi32 rm fa = doSoftFloat rm (f16_to_ui32 fa (roundingModeToInt rm) 0x1)
 
 f16ToUi64 :: RoundingMode -> Word16 -> Ui64Result
-f16ToUi64 rm fa = doSoftFloat rm (f16_to_ui64 fa (fromIntegral $ fromEnum rm) 0x1)
+f16ToUi64 rm fa = doSoftFloat rm (f16_to_ui64 fa (roundingModeToInt rm) 0x1)
 
 f16ToI32 :: RoundingMode -> Word16 -> I32Result
-f16ToI32 rm fa = doSoftFloat rm (f16_to_i32 fa (fromIntegral $ fromEnum rm) 0x1)
+f16ToI32 rm fa = doSoftFloat rm (f16_to_i32 fa (roundingModeToInt rm) 0x1)
 
 f16ToI64 :: RoundingMode -> Word16 -> I64Result
-f16ToI64 rm fa = doSoftFloat rm (f16_to_i64 fa (fromIntegral $ fromEnum rm) 0x1)
+f16ToI64 rm fa = doSoftFloat rm (f16_to_i64 fa (roundingModeToInt rm) 0x1)
 
 f32ToUi32 :: RoundingMode -> Word32 -> Ui32Result
-f32ToUi32 rm fa = doSoftFloat rm (f32_to_ui32 fa (fromIntegral $ fromEnum rm) 0x1)
+f32ToUi32 rm fa = doSoftFloat rm (f32_to_ui32 fa (roundingModeToInt rm) 0x1)
 
 f32ToUi64 :: RoundingMode -> Word32 -> Ui64Result
-f32ToUi64 rm fa = doSoftFloat rm (f32_to_ui64 fa (fromIntegral $ fromEnum rm) 0x1)
+f32ToUi64 rm fa = doSoftFloat rm (f32_to_ui64 fa (roundingModeToInt rm) 0x1)
 
 f32ToI32 :: RoundingMode -> Word32 -> I32Result
-f32ToI32 rm fa = doSoftFloat rm (f32_to_i32 fa (fromIntegral $ fromEnum rm) 0x1)
+f32ToI32 rm fa = doSoftFloat rm (f32_to_i32 fa (roundingModeToInt rm) 0x1)
 
 f32ToI64 :: RoundingMode -> Word32 -> I64Result
-f32ToI64 rm fa = doSoftFloat rm (f32_to_i64 fa (fromIntegral $ fromEnum rm) 0x1)
+f32ToI64 rm fa = doSoftFloat rm (f32_to_i64 fa (roundingModeToInt rm) 0x1)
 
 f64ToUi32 :: RoundingMode -> Word64 -> Ui32Result
-f64ToUi32 rm fa = doSoftFloat rm (f64_to_ui32 fa (fromIntegral $ fromEnum rm) 0x1)
+f64ToUi32 rm fa = doSoftFloat rm (f64_to_ui32 fa (roundingModeToInt rm) 0x1)
 
 f64ToUi64 :: RoundingMode -> Word64 -> Ui64Result
-f64ToUi64 rm fa = doSoftFloat rm (f64_to_ui64 fa (fromIntegral $ fromEnum rm) 0x1)
+f64ToUi64 rm fa = doSoftFloat rm (f64_to_ui64 fa (roundingModeToInt rm) 0x1)
 
 f64ToI32 :: RoundingMode -> Word64 -> I32Result
-f64ToI32 rm fa = doSoftFloat rm (f64_to_i32 fa (fromIntegral $ fromEnum rm) 0x1)
+f64ToI32 rm fa = doSoftFloat rm (f64_to_i32 fa (roundingModeToInt rm) 0x1)
 
 f64ToI64 :: RoundingMode -> Word64 -> I64Result
-f64ToI64 rm fa = doSoftFloat rm (f64_to_i64 fa (fromIntegral $ fromEnum rm) 0x1)
+f64ToI64 rm fa = doSoftFloat rm (f64_to_i64 fa (roundingModeToInt rm) 0x1)
 
 ----------------------------------------------------------------------
 -- Float to float conversions
@@ -356,7 +364,7 @@ f64ToF32 rm fa = doSoftFloat rm (f64_to_f32 fa)
 -- 16-bit operations
 
 f16RoundToInt :: RoundingMode -> Word16 -> F16Result
-f16RoundToInt rm fa = doSoftFloat rm (f16_roundToInt fa (fromIntegral $ fromEnum rm) 0x1)
+f16RoundToInt rm fa = doSoftFloat rm (f16_roundToInt fa (roundingModeToInt rm) 0x1)
 
 f16Add :: RoundingMode -> Word16 -> Word16 -> F16Result
 f16Add rm fa fb = doSoftFloat rm (f16_add fa fb)
@@ -404,7 +412,7 @@ f16IsSignalingNaN fa = doSoftFloatWithBoolReturn RoundNearEven (f16_isSignalingN
 -- 32-bit operations
 
 f32RoundToInt :: RoundingMode -> Word32 -> F32Result
-f32RoundToInt rm fa = doSoftFloat rm (f32_roundToInt fa (fromIntegral $ fromEnum rm) 0x1)
+f32RoundToInt rm fa = doSoftFloat rm (f32_roundToInt fa (roundingModeToInt rm) 0x1)
 
 f32Add :: RoundingMode -> Word32 -> Word32 -> F32Result
 f32Add rm fa fb = doSoftFloat rm (f32_add fa fb)
@@ -452,7 +460,7 @@ f32IsSignalingNaN fa = doSoftFloatWithBoolReturn RoundNearEven (f32_isSignalingN
 -- 64-bit operations
 
 f64RoundToInt :: RoundingMode -> Word64 -> F64Result
-f64RoundToInt rm fa = doSoftFloat rm (f64_roundToInt fa (fromIntegral $ fromEnum rm) 0x1)
+f64RoundToInt rm fa = doSoftFloat rm (f64_roundToInt fa (roundingModeToInt rm) 0x1)
 
 f64Add :: RoundingMode -> Word64 -> Word64 -> F64Result
 f64Add rm fa fb = doSoftFloat rm (f64_add fa fb)

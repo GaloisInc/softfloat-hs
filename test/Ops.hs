@@ -7,6 +7,54 @@ import Data.Bits
 import Numeric (readHex)
 import Data.List (isInfixOf)
 
+type FloatOp16 = FloatOp Word16
+type FloatOp32 = FloatOp Word32
+type FloatOp64 = FloatOp Word64
+
+data AnyFloatOp = F16 FloatOp16 | F32 FloatOp32 | F64 FloatOp64
+    deriving (Show)
+
+data AnyResult = RF16 F16Result | RF32 F32Result | RF64 F64Result | RBool BoolResult
+    deriving (Show, Eq)
+
+executeOp :: AnyFloatOp -> AnyResult
+executeOp (F16 op) = executeOp16 op
+executeOp (F32 op) = executeOp32 op
+executeOp (F64 op) = executeOp64 op
+
+executeOp16 :: FloatOp16 -> AnyResult
+executeOp16 (Arith op)   = RF16 $ interp op
+executeOp16 (Compare op) = RBool $ interpCompare op
+--executeOp16 (Convert op) = RF16 $ interpConvert op
+executeOp16 op = error $ "Unimplemented: " ++ show op
+
+executeOp32 :: FloatOp32 -> AnyResult
+executeOp32 (Arith op)   = RF32 $ interp op
+executeOp32 (Compare op) = RBool $ interpCompare op
+--executeOp32 (Convert op) = RF32 $ interpConvert op
+executeOp32 op = error $ "Unimplemented: " ++ show op
+
+executeOp64 :: FloatOp64 -> AnyResult
+executeOp64 (Arith op)   = RF64 $ interp op
+executeOp64 (Compare op) = RBool $ interpCompare op
+executeOp64 op = error $ "Unimplemented: " ++ show op
+
+readResult :: [String] -> String -> AnyResult
+readResult vals arg | isCompare == True = RBool (Result opBool flags)
+                    | opWidth == "f16" = RF16 (Result op16 flags)
+                    | opWidth == "f32" = RF32 (Result op32 flags)
+                    | opWidth == "f64" = RF64 (Result op64 flags)
+                    | otherwise = error $ "Unimplemented: " ++ opWidth
+    where
+        opWidth = takeWhile (\x -> x /= '_') arg
+        isCompare = ("_le" `isInfixOf` arg) || ("_lt" `isInfixOf` arg) || ("_eq" `isInfixOf` arg)
+        flags = readExceptionFlags (fst $ head $ readHex (last vals) :: Word8)
+        op16 = fst $ head $ readHex (head vals) :: Word16
+        op32 = fst $ head $ readHex (head vals) :: Word32
+        op64 = fst $ head $ readHex (head vals) :: Word64
+        opBool | (read $ head vals :: Word8) == 1 = True
+               | otherwise = False
+
 readRoundingMode :: String -> RoundingMode
 readRoundingMode s | mode == "odd" = RoundOdd
                    | mode == "min" = RoundMin
@@ -26,58 +74,6 @@ readExceptionFlags flags = ExceptionFlags isInexact isUnderflow isOverflow isInf
         isOverflow = (flags .&. 0x4) /= 0
         isInf = (flags .&. 0x8) /= 0
         isInvalid = (flags .&. 0x10) /= 0
-
-type FloatOp16 = FloatOp Word16
-type FloatOp32 = FloatOp Word32
-type FloatOp64 = FloatOp Word64
-
-data AnyFloatOp = F16 FloatOp16 | F32 FloatOp32 | F64 FloatOp64
-    deriving (Show)
-
-data AnyResult = RF16 F16Result | RF32 F32Result | RF64 F64Result | RBool BoolResult
-    deriving (Show, Eq)
-
-executeOp :: AnyFloatOp -> AnyResult
-executeOp (F16 op) = executeOp16 op
-executeOp (F32 op) = executeOp32 op
-executeOp (F64 op) = executeOp64 op
-
-executeOp16 :: FloatOp16 -> AnyResult
-executeOp16 (Arith op) = RF16 $ interp op
-executeOp16 (Compare op) = RBool $ interpCompare op
-executeOp16 op = error $ "Unimplemented: " ++ show op
-
-executeOp32 :: FloatOp32 -> AnyResult
-executeOp32 (Arith op) = RF32 $ interp op
-executeOp32 (Compare op) = RBool $ interpCompare op
-executeOp32 op = error $ "Unimplemented: " ++ show op
-
-executeOp64 :: FloatOp64 -> AnyResult
-executeOp64 (Arith op) = RF64 $ interp op
-executeOp64 (Compare op) = RBool $ interpCompare op
-executeOp64 op = error $ "Unimplemented: " ++ show op
-
-
--- val = "BFF1 01" (result word, flags) both in hex
--- arg is e.g. "f16_div" optype
--- Compare ops return bool
-readResult :: [String] -> String -> AnyResult
-readResult vals arg | isCompare == True = RBool (Result opBool flags)
-                           | opWidth == "f16" = RF16 (Result op16 flags)
-                           | opWidth == "f32" = RF32 (Result op32 flags)
-                           | opWidth == "f64" = RF64 (Result op64 flags)
-                           | otherwise = error $ "Unimplemented: " ++ opWidth
-    where
-        opWidth = takeWhile (\x -> x /= '_') arg
-        isCompare = ("_le" `isInfixOf` arg) || ("_lt" `isInfixOf` arg) || ("_eq" `isInfixOf` arg)
-        flags = readExceptionFlags (fst $ head $ readHex (last vals) :: Word8)
-        op16 = fst $ head $ readHex (head vals) :: Word16
-        op32 = fst $ head $ readHex (head vals) :: Word32
-        op64 = fst $ head $ readHex (head vals) :: Word64
-        opBool | (read $ head vals :: Word8) == 1 = True
-               | otherwise = False
-
-
 
 -- args are e.g. "["f16_div","-rodd"]" (optype, rounding mode)
 -- operands are for example: "["BFF0B277", "DFFDFE00", "1F72998F"]
@@ -107,15 +103,14 @@ parseOpInner ops args | opType == "add" = Arith $ Add r (ops !! 0) (ops !! 1)
                   | opType == "eq_signaling" = Compare $ EqSignaling (ops !! 0) (ops !! 1)
                   | opType == "le_quiet" = Compare $ LeQuiet (ops !! 0) (ops !! 1)
                   | opType == "lt_quiet" = Compare $ LtQuiet (ops !! 0) (ops !! 1)
-                  | opType == "to_ui32" = Convert $ ToUi32 (ops !! 0)
-                  | opType == "to_ui64" = Convert $ ToUi64 (ops !! 0)
-                  | opType == "to_i32" = Convert $ ToI32 (ops !! 0)
-                  | opType == "to_i64" = Convert $ ToI64 (ops !! 0)
+--                  | opType == "to_ui32" = Convert $ ToUi32 (ops !! 0)
+--                  | opType == "to_ui64" = Convert $ ToUi64 (ops !! 0)
+--                  | opType == "to_i32" = Convert $ ToI32 (ops !! 0)
+--                  | opType == "to_i64" = Convert $ ToI64 (ops !! 0)
                   | otherwise = error $ "Unimplemented: " ++ opType
     where
         opType = tail $ dropWhile (\x -> x /= '_') (head args)
         r = readRoundingMode (last args)
-
 
 data FloatOp a = Arith (FloatArithmeticOp a)
                | Compare (FloatCompareOp a)
@@ -124,45 +119,43 @@ data FloatOp a = Arith (FloatArithmeticOp a)
 
 -- a `elem` [f16,f32,f64]
 data FloatArithmeticOp a = MulAdd RoundingMode a a a -- *+
-                      | Add RoundingMode a a -- +
-                      | Mul RoundingMode a a -- *
-                      | Div RoundingMode a a -- /
-                      | Sub RoundingMode a a -- -
-                      | Rem RoundingMode a a -- %
-                      | Sqrt RoundingMode a -- V
+                         | Add RoundingMode a a -- +
+                         | Mul RoundingMode a a -- *
+                         | Div RoundingMode a a -- /
+                         | Sub RoundingMode a a -- -
+                         | Rem RoundingMode a a -- %
+                         | Sqrt RoundingMode a -- V
     deriving (Show, Eq)
 
 -- a `elem` [f16,f32,f64]
 data FloatCompareOp a = Eq a a -- ==
-                       | Le a a -- <=
-                       | Lt a a -- <
-                       | EqSignaling a a
-                       | LeQuiet a a
-                       | LtQuiet a a
+                      | Le a a -- <=
+                      | Lt a a -- <
+                      | EqSignaling a a
+                      | LeQuiet a a
+                      | LtQuiet a a
     deriving (Show, Eq)
 
 -- a `elem` [f16,f32,f64]
-data FloatConvertOp a = ToUi32 a
-                       | ToUi64 a
-                       | ToI32 a
-                       | ToI64 a
-                       | Ui32ToF a
-                       | I32toF a
-                       | Ui64toF a
-                       | I64ToF a
-                       | F16ToF a
-                       | F32toF a
-                       | F64toF a
-                       | ToF16 a
-                       | ToF32 a
-                       | ToF64 a
-                       | RoundToInt a
+data FloatConvertOp a = Ui32ToF a
+                      -- | ToUi32 a
+                      -- | ToUi64 a
+                      -- | ToI32 a
+                      -- | ToI64 a
+                      | I32toF a
+                      | Ui64toF a
+                      | I64ToF a
+                      | F16ToF a
+                      | F32toF a
+                      | F64toF a
+                      -- | ToF16 a
+                      -- | ToF32 a
+                      -- | ToF64 a
+                      | RoundToInt a
     deriving (Show, Eq)
 
-
--- ?? f32RoundToInt :: RoundingMode -> Word32 -> F32Result ?? How to immplement this generically?
--- TODO: f32_is_signaling_nan is not tested
--- i.e. no test cases for f32IsSignalingNaN :: Word32 -> BoolResult
+-- TODO: testfloat_gen doesn't generate test cases for 
+-- f32IsSignalingNaN :: Word32 -> BoolResult
 class FloatArithmeticOpImpl a where
     -- f32MulAdd :: RoundingMode -> Word32 -> Word32 -> Word32 -> F32Result
     flMulAdd :: RoundingMode -> a -> a -> a -> Result a
@@ -194,10 +187,10 @@ class FloatCompareOpImpl a where
     flLtQuiet :: a -> a -> BoolResult
 
 class FloatConvertOpImpl a where
-    flToUi32 :: RoundingMode -> a -> Ui32Result
-    flToUi64 :: RoundingMode -> a -> Ui64Result
-    flToI32  :: RoundingMode -> a -> I32Result
-    flToI64  :: RoundingMode -> a -> I64Result
+    --flToUi32 :: RoundingMode -> a -> Ui32Result
+    --flToUi64 :: RoundingMode -> a -> Ui64Result
+    --flToI32  :: RoundingMode -> a -> I32Result
+    --flToI64  :: RoundingMode -> a -> I64Result
     flUi32ToF :: RoundingMode -> Word32 -> Result a
     flI32ToF :: RoundingMode -> Int32 -> Result a
     flUi64ToF :: RoundingMode -> Word64 -> Result a
@@ -205,9 +198,9 @@ class FloatConvertOpImpl a where
     flF16ToF :: RoundingMode -> Word16 -> Result a
     flF32ToF :: RoundingMode -> Word32 -> Result a
     flF64ToF :: RoundingMode -> Word64 -> Result a
-    flToF16 :: RoundingMode -> a -> F16Result
-    flToF32 :: RoundingMode -> a -> F32Result
-    flToF64 :: RoundingMode -> a -> F64Result
+    --flToF16 :: RoundingMode -> a -> F16Result
+    --flToF32 :: RoundingMode -> a -> F32Result
+    --flToF64 :: RoundingMode -> a -> F64Result
     flRoundToInt :: RoundingMode -> a -> Result a
 
 interp :: (FloatArithmeticOpImpl a) => FloatArithmeticOp a -> Result a
@@ -227,6 +220,17 @@ interpCompare (EqSignaling a b) = flEqSignaling a b
 interpCompare (LeQuiet a b) = flLeQuiet a b
 interpCompare (LtQuiet a b) = flLtQuiet a b
 
+{--
+interpConvert :: (FloatConvertOpImpl a) => FloatConvertOp a -> Result a
+Ui32ToF a
+I32toF a
+Ui64toF a
+I64ToF a
+F16ToF a
+F32toF a
+F64toF a
+RoundToInt a
+--}
 
 
 instance FloatArithmeticOpImpl Word16 where

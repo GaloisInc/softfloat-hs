@@ -13,9 +13,13 @@ import System.Exit
 
 logFile = "out.log"
 genPath = "lib/testfloat_gen"
-baseArgs = ["-level","1","-exact"]
+baseArgs = ["-n","100000","-exact","-seed","1"]
 
 -- full test:
+-- TODO: add convert
+-- TODO: add command line options, such as seed etc
+-- TODO: clean FPGen test
+-- TODO: merge with upstream
 {--
 widths = ["f16","f32","f64"]
 arithmeticOps = ["add","sub","div","rem","sqrt","le",
@@ -51,20 +55,21 @@ main = do
             let expectedResult = readResult (drop (length splitData -2) $ splitData) typeArg
             let sfResult = executeOp op
 
-            let hwInput = opArgs ++ operands
+            --let hwInput = opArgs ++ operands
             --putStrLn $ "HW: " ++ show hwInput
-            res <- readProcess "test/fenv/hw_float" hwInput []
+            --res <- readProcess "test/fenv/hw_float" hwInput []
             --putStrLn $ "HW returned: " ++ res
             --putStrLn $ "When split: " ++ show (splitOn " " res)
-            let hwResult = readResult (init $ splitOn " " res) typeArg
+            --let hwResult = readResult (init $ splitOn " " res) typeArg
             --putStrLn $ "Hw result: " ++ show hwResult
-            if (sfResult /= expectedResult) || (hwResult /= expectedResult)
+            --if (sfResult /= expectedResult) || (hwResult /= expectedResult)
+            if sfResult /= expectedResult
             then do
                 putStrLn $ "Test " ++ show testNumber ++ " fails: "    
                 putStrLn testData
                 putStrLn $ show op
                 putStrLn $ "Expected results:     " ++ show expectedResult
-                putStrLn $ "Hw results:           " ++ show hwResult
+                --putStrLn $ "Hw results:           " ++ show hwResult
                 putStrLn $ "Softfloat-hs results: " ++ show sfResult
                 exitFailure
             else do
