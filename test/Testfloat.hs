@@ -1,42 +1,64 @@
 module Main where
 
 import Ops
-import SoftFloat
-import Data.Word
+--import SoftFloat
+--import Data.Word
 import System.Process (readProcess)
 import Data.List.Split
 import Control.Monad (forM_)
-import Numeric (readHex, showIntAtBase)
-import Data.Char (intToDigit)
-import Data.Bits
+--import Numeric (readHex, showIntAtBase)
+--import Data.Char (intToDigit)
+--import Data.Bits
 import System.Exit
 
+logFile :: String
 logFile = "out.log"
+
+genPath :: String
 genPath = "lib/testfloat_gen"
-baseArgs = ["-n","100000","-exact","-seed","1"]
+
+baseArgs :: [String]
+baseArgs = ["-level","1","-exact","-seed","1"]
 
 -- full test:
--- TODO: add convert
 -- TODO: add command line options, such as seed etc
--- TODO: clean FPGen test
 -- TODO: merge with upstream
-{--
-widths = ["f16","f32","f64"]
-arithmeticOps = ["add","sub","div","rem","sqrt","le",
-                 "eq","lt","eq_signaling","le_quiet","lt_quiet"]
-roundings = ["near_even", "minMag","min","max","near_maxMag","odd"]
---}
+floats :: [String]
+floats = ["f16", "f32", "f64"]
 
--- mini test:
-widths = ["f32"]
-arithmeticOps = ["add","sub","div","rem","sqrt","le",
-                 "eq","lt","eq_signaling","le_quiet","lt_quiet"]
+ints :: [String]
+ints = ["ui32","i32","i64","ui64"]
+
+ops  :: [String]
+ops = ["add","sub","div","rem","sqrt","le","mulAdd",
+       "eq","lt","eq_signaling","le_quiet","lt_quiet"]
+
+intToFloat :: [String]
+intToFloat = [ i ++ "_to_" ++ f | i <- ints, f <- floats]
+
+floatToInt :: [String]
+floatToInt = [ f ++ "_to_" ++ i | i <- ints, f <- floats]
+
+floatToFloat :: [String]
+floatToFloat = ["f16_to_f32", "f16_to_f64",
+                "f32_to_f16","f32_to_f64",
+                "f64_to_f16","f64_to_f32"]
+
+floatOps :: [String]
+floatOps = [ f ++ "_" ++ op | f <- floats, op <- ops]
+
+arithmeticOps :: [String]
+arithmeticOps = intToFloat ++ floatToFloat ++ floatToInt ++ floatOps
+
+roundings :: [String]
 roundings = ["near_even", "minMag","min","max","near_maxMag","odd"]
 
 -- create all permutations of the tests
-createArgs = [ [width ++ "_" ++ op] ++ ["-r" ++ rounding] ++ baseArgs 
-            | width <- widths, rounding <- roundings, op <- arithmeticOps]
+createArgs :: [[String]]
+createArgs = [ [op] ++ ["-r" ++ rounding] ++ baseArgs 
+            | rounding <- roundings, op <- arithmeticOps]
 
+main :: IO ()
 main = do
     forM_ createArgs $ \(args) -> do
         putStrLn $ show args

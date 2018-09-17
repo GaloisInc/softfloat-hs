@@ -197,7 +197,19 @@ instance Show F32Result where
         binRaw = (showIntAtBase 16 intToDigit r "")
         binPadded = (replicate (8 - length binRaw) '0') ++ binRaw
 
+instance Show I32Result where
+  show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
+    where
+        binRaw = (showIntAtBase 16 intToDigit r "")
+        binPadded = (replicate (8 - length binRaw) '0') ++ binRaw
+
 instance Show F64Result where
+  show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
+    where
+        binRaw = (showIntAtBase 16 intToDigit r "")
+        binPadded = (replicate (16 - length binRaw) '0') ++ binRaw
+
+instance Show I64Result where
   show (Result r ex) = "0x" ++ binPadded ++ " " ++ show ex
     where
         binRaw = (showIntAtBase 16 intToDigit r "")
