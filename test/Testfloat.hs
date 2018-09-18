@@ -160,13 +160,14 @@ main = do
     if testHw then "Hw results:           " ++ display hwResult else ""
   getHwResult testHw operands typeArg opArgs expectedResult = if testHw
     then do
+      -- TODO: hw tests are not supported yet
       let hwInput = opArgs ++ operands
-      putStrLn $ "HW: " ++ show hwInput
+      -- putStrLn $ "HW: " ++ show hwInput
       res <- readProcess "test/fenv/hw_float" hwInput []
-      putStrLn $ "HW returned: " ++ res
-      putStrLn $ "When split: " ++ show (splitOn " " res)
+      -- putStrLn $ "HW returned: " ++ res
+      --putStrLn $ "When split: " ++ show (splitOn " " res)
       let hwResult = readResult (init $ splitOn " " res) typeArg
-      putStrLn $ "Hw result: " ++ show hwResult
+      -- putStrLn $ "Hw result: " ++ show hwResult
       return hwResult
     else return expectedResult
 
