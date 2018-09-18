@@ -43,6 +43,7 @@ install:
 
 softfloat:
 	cd $(SOFTFLOAT_PATH) &&	make SPECIALIZE_TYPE=$(SPECIALIZE_TYPE)
+	mkdir -p lib
 	gcc $(CFLAGS) -o lib/libsoftfloat.so $(SOFTFLOAT_PATH)/*.o
 
 testfloat:
@@ -62,7 +63,3 @@ clean-testfloat:
 	rm lib/t*
 
 clean: clean-softfloat clean-testfloat
-
-
-
-	
