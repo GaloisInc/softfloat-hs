@@ -75,7 +75,7 @@ main :: IO ()
 main = do
   forM_ createArgs $ \(args) -> do
     putStrLn $ show args
-    tests <- readProcess "lib/testfloat_gen" ([genPath] ++ args) []
+    tests <- readProcess "lib/testfloat_gen" args []
     putStrLn $ "Generated test cases: " ++ show (length $ lines tests)
     let testCases = zip (lines tests) [1 ..] :: [(String, Integer)]
     forM_ testCases $ \(testData, testNumber) -> do
