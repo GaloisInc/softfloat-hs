@@ -5,16 +5,9 @@ import           System.Process                 ( readProcess )
 import           Data.List.Split
 import           Control.Monad                  ( forM_ )
 import           System.Exit
-
-logFile :: String
-logFile = "out.log"
-
-genPath :: String
-genPath = "lib/testfloat_gen"
-
-baseArgs :: [String]
---baseArgs = ["-n","6133248","-exact","-seed","1"]
-baseArgs = ["-n", "10000", "-exact", "-seed", "1"]
+import qualified Options.Applicative           as O
+import           Data.Semigroup                 ( (<>) )
+import qualified System.Random                 as R
 
 floats :: [String]
 floats = ["f16", "f32", "f64"]
@@ -64,20 +57,79 @@ roundings :: [String]
 roundings = ["near_even", "minMag", "min", "max", "near_maxMag", "odd"]
 
 -- create all permutations of the tests
-createArgs :: [[String]]
-createArgs =
-  [ [op] ++ ["-r" ++ rounding] ++ baseArgs
-  | rounding <- roundings
-  , op       <- arithmeticOps
-  ]
+createArgs :: IO [[String]]
+createArgs = do
+  cmdOpts <- O.execParser opts
+  s       <- mySeed cmdOpts
+  let baseArgs = ["-exact", "-n", show $ tests cmdOpts, "-seed", show s]
+  let args =
+        [ [op] ++ ["-r" ++ rounding] ++ baseArgs
+        | rounding <- roundings
+        , op       <- arithmeticOps
+        ]
+  return args
+ where
+  opts = O.info
+    (appOptions O.<**> O.helper)
+    (O.fullDesc <> O.progDesc descString <> O.header
+      "Tesftloat for softfloat-hs"
+    )
+  mySeed cmdOpts = if seed cmdOpts == 0
+    then do
+      rnd <- R.randomRIO (1, 65535)
+      return rnd
+    else return (seed cmdOpts)
+
+data AppOptions = AppOptions
+  { seed :: Int
+  , tests    :: Int
+  , hw :: Bool
+  }
+
+testHardware :: IO Bool
+testHardware = do
+  cmdOpts <- O.execParser opts
+  return $ hw cmdOpts
+ where
+  opts = O.info
+    (appOptions O.<**> O.helper)
+    (O.fullDesc <> O.progDesc descString <> O.header
+      "Tesftloat for softfloat-hs"
+    )
+
+appOptions :: O.Parser AppOptions
+appOptions =
+  AppOptions
+    <$> O.option
+          O.auto
+          (O.long "seed" <> O.short 's' <> O.metavar "S" <> O.value 0 <> O.help
+            "Initial seed for the test generator"
+          )
+    <*> O.option
+          O.auto
+          (  O.long "tests"
+          <> O.short 'n'
+          <> O.metavar "TESTS"
+          <> O.value 6133248
+          <> O.help "Number of generated test vectors for each operation"
+          )
+    <*> O.switch (O.long "hw" <> O.help "Test on actual hardware")
+
+descString :: String
+descString =
+  "Generate test vectors using testfloat and execute them agains softloat-hs, "
+    ++ "optionally the hardware implementation."
+    ++ "If seed is zero or non-specified, a random number is generated."
 
 main :: IO ()
 main = do
-  forM_ createArgs $ \(args) -> do
+  progArgs <- createArgs
+  testHw   <- testHardware
+  forM_ progArgs $ \(args) -> do
     putStrLn $ show args
-    tests <- readProcess "lib/testfloat_gen" args []
-    putStrLn $ "Generated test cases: " ++ show (length $ lines tests)
-    let testCases = zip (lines tests) [1 ..] :: [(String, Integer)]
+    testVectors <- readProcess "lib/testfloat_gen" args []
+    putStrLn $ "Generated test cases: " ++ show (length $ lines testVectors)
+    let testCases = zip (lines testVectors) [1 ..] :: [(String, Integer)]
     forM_ testCases $ \(testData, testNumber) -> do
       let splitData = (splitOn " " testData)
       let operands  = init splitData
@@ -90,24 +142,31 @@ main = do
             readResult (drop (length splitData - 2) $ splitData) typeArg
       let sfResult = executeOp op
 
-      --let hwInput = opArgs ++ operands
-      --putStrLn $ "HW: " ++ show hwInput
-      --res <- readProcess "test/fenv/hw_float" hwInput []
-      --putStrLn $ "HW returned: " ++ res
-      --putStrLn $ "When split: " ++ show (splitOn " " res)
-      --let hwResult = readResult (init $ splitOn " " res) typeArg
-      --putStrLn $ "Hw result: " ++ show hwResult
-      --if (sfResult /= expectedResult) || (hwResult /= expectedResult)
+      hwResult <- getHwResult testHw operands typeArg opArgs expectedResult
 
-      if sfResult /= expectedResult
+      if (sfResult /= expectedResult) || (hwResult /= expectedResult)
         then do
           putStrLn $ "Test " ++ show testNumber ++ " fails: "
           putStrLn testData
           putStrLn $ show op
           putStrLn $ "Expected results:     " ++ display expectedResult
-          --putStrLn $ "Hw results:           " ++ show hwResult
           putStrLn $ "Softfloat-hs results: " ++ display sfResult
+          putStrLn $ printHwResult testHw hwResult
           exitFailure
         else do
           return ()
+ where
+  printHwResult testHw hwResult =
+    if testHw then "Hw results:           " ++ display hwResult else ""
+  getHwResult testHw operands typeArg opArgs expectedResult = if testHw
+    then do
+      let hwInput = opArgs ++ operands
+      putStrLn $ "HW: " ++ show hwInput
+      res <- readProcess "test/fenv/hw_float" hwInput []
+      putStrLn $ "HW returned: " ++ res
+      putStrLn $ "When split: " ++ show (splitOn " " res)
+      let hwResult = readResult (init $ splitOn " " res) typeArg
+      putStrLn $ "Hw result: " ++ show hwResult
+      return hwResult
+    else return expectedResult
 

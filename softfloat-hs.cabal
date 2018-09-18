@@ -45,4 +45,6 @@ executable testfloat
   build-depends:       base,
                        softfloat-hs,
                        split,
-                       process
+                       process,
+                       optparse-applicative,
+                       random
