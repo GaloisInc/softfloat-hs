@@ -58,10 +58,10 @@ testfloat:
 
 clean-softfloat:
 	cd $(SOFTFLOAT_PATH) && make clean
-	rm lib/libsoftfloat.so
+	rm -rf lib/libsoftfloat.so
 
 clean-testfloat:
 	cd $(TESTFLOAT_PATH) && make clean
-	rm lib/t*
+	rm -rf lib/t*
 
 clean: clean-softfloat clean-testfloat

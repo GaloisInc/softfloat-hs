@@ -19,15 +19,11 @@ We assume you have already installed the Haskell `stack ` build tool
 SoftFloat is not too complicated to install, but it is best to build a dynamic
 library so that `softfloat-hs` can be loaded into ghci (which does not support
 statically linked C libraries). For convenience, we provide SoftFloat itself as a
-submodule, as well as a script to install it on OSX:
+submodule, as well as a Makefile to install it on Linux/OSX:
 ```shell
 $ git submodule update --init --recursive
-$ ./install-softfloat-osx.sh
-```
-If you are on a Linux system, use:
-```shell
-$ git submodule update --init --recursive
-$ sudo ./install-softfloat-linux.sh
+$ make
+$ sudo make install
 ```
 
 ## Step 2: Build softfloat-hs with stack
