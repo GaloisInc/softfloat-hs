@@ -4,7 +4,7 @@
  * types are changed to uintXX_t. This makes them more immediately compatible with
  * the Haskell FFI.
  */
-#include "../berkeley-softfloat-3/source/include/softfloat.h"
+#include <softfloat.h>
 
 uint16_t hs_ui32_to_f16( uint32_t );
 uint32_t hs_ui32_to_f32( uint32_t );

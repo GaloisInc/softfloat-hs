@@ -22,11 +22,13 @@ ifeq ($(UNAME), Linux)
 SPECIALIZE_TYPE=$(COMPILE_TYPE) SOFTFLOAT_OPTS="-DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -fpic"
 CFLAGS = -shared
 LIBPATH=/usr/lib/libsoftfloat.so
+INCLUDEPATH=/usr/include
 endif
 ifeq ($(UNAME), Darwin)
 SPECIALIZE_TYPE=$(COMPILE_TYPE) # SOFTFLOAT_OPTS="-DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32"
 CFLAGS = -dynamiclib
 LIBPATH=/usr/local/lib/libsoftfloat.dylib
+INCLUDEPATH=/usr/local/include
 endif
 
 SOFTFLOAT_PATH = berkeley-softfloat-3/build/$(SYSTEM)
@@ -46,6 +48,8 @@ install:
 softfloat:
 	cd $(SOFTFLOAT_PATH) &&	make SPECIALIZE_TYPE=$(SPECIALIZE_TYPE)
 	mkdir -p lib
+	cp berkeley-softfloat-3/source/include/softfloat.h $(INCLUDEPATH)/softfloat.h
+	cp berkeley-softfloat-3/source/include/softfloat_types.h $(INCLUDEPATH)/softfloat_types.h
 	gcc $(CFLAGS) -o lib/libsoftfloat.so $(SOFTFLOAT_PATH)/*.o
 
 testfloat:
