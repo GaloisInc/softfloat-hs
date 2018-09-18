@@ -1,4 +1,3 @@
-
 {-|
 Module      : SoftFloat
 Copyright   : (c) Benjamin Selfridge, 2018
@@ -32,7 +31,7 @@ classify them in broad categories and document those categories. The user of thi
 module should be able to easily discern exactly what each individual function does
 from its name and category description.
 -}
-
+{-# LANGUAGE DeriveFunctor #-}
 module SoftFloat
   (
     -- * Result of floating-point computations
@@ -44,7 +43,7 @@ module SoftFloat
   , Ui64Result
   , I32Result
   , I64Result
-  , CBoolResult
+  , BoolResult
   , ExceptionFlags(..)
 
   -- * Rounding
@@ -170,7 +169,8 @@ import SoftFloat.Internal
 -- data type, providing the 'ExceptionFlags' that are raised by the operation. We
 -- also provide a set of type aliases for specific 'a's that are relevant to this
 -- module.
-data Result a = Result a ExceptionFlags deriving (Eq)
+data Result a = Result a ExceptionFlags
+  deriving (Eq, Functor, Show)
 
 type Ui32Result = Result Word32
 type Ui64Result = Result Word64
@@ -179,7 +179,7 @@ type I64Result = Result Int64
 type F16Result = Result Word16
 type F32Result = Result Word32
 type F64Result = Result Word64
-type CBoolResult = Result CBool
+type BoolResult = Result Bool
 
 -- | Data type for specifying rounding mode to a floating point computation.
 data RoundingMode = RoundNearEven
@@ -188,16 +188,24 @@ data RoundingMode = RoundNearEven
                   | RoundMax
                   | RoundNearMaxMag
                   | RoundOdd
-  deriving (Enum, Show)
+  deriving (Show, Eq)
+
+roundingModeToInt :: (Integral a) => RoundingMode -> a
+roundingModeToInt RoundNearEven = 0
+roundingModeToInt RoundMinMag = 1
+roundingModeToInt RoundMin = 2
+roundingModeToInt RoundMax = 3
+roundingModeToInt RoundNearMaxMag = 4
+roundingModeToInt RoundOdd = 6
 
 -- | Exception flags returned by a floating point computation.
 data ExceptionFlags = ExceptionFlags
-  { inexact   :: Bool
-  , underflow :: Bool
-  , overflow  :: Bool
-  , infinite  :: Bool
-  , invalid   :: Bool
-  } deriving (Show, Eq)
+  { inexact   :: Bool -- x
+  , underflow :: Bool -- u
+  , overflow  :: Bool -- o
+  , infinite  :: Bool -- z (division by zero)
+  , invalid   :: Bool -- i
+  } deriving (Eq, Show)
 
 -- We use this function to "lift" impure FFI calls into pure functions via
 -- unsafePerformIO. Because the global variables that are accessed are thread local,
@@ -205,7 +213,7 @@ data ExceptionFlags = ExceptionFlags
 doSoftFloat :: RoundingMode -> IO a -> Result a
 doSoftFloat rm ioRes = unsafePerformIO $ runInBoundThread $ do
   poke exceptionFlags 0x0
-  poke roundingMode (fromIntegral $ fromEnum rm)
+  poke roundingMode (roundingModeToInt rm)
   res <- ioRes
   flags <- peek exceptionFlags
   return $ Result res $ ExceptionFlags
@@ -214,6 +222,10 @@ doSoftFloat rm ioRes = unsafePerformIO $ runInBoundThread $ do
     (flags .&. 0x4  /= 0x0)
     (flags .&. 0x8  /= 0x0)
     (flags .&. 0x10 /= 0x0)
+
+
+doSoftFloatBool :: RoundingMode -> IO CBool -> BoolResult
+doSoftFloatBool rm ioRes = fmap (/=0) $ doSoftFloat rm ioRes
 
 ----------------------------------------------------------------------
 -- Integer to float conversions
@@ -257,40 +269,40 @@ i64ToF64 rm a = doSoftFloat rm (i64_to_f64 a)
 ----------------------------------------------------------------------
 -- Float to integer conversions
 f16ToUi32 :: RoundingMode -> Word16 -> Ui32Result
-f16ToUi32 rm fa = doSoftFloat rm (f16_to_ui32 fa (fromIntegral $ fromEnum rm) 0x1)
+f16ToUi32 rm fa = doSoftFloat rm (f16_to_ui32 fa (roundingModeToInt rm) 0x1)
 
 f16ToUi64 :: RoundingMode -> Word16 -> Ui64Result
-f16ToUi64 rm fa = doSoftFloat rm (f16_to_ui64 fa (fromIntegral $ fromEnum rm) 0x1)
+f16ToUi64 rm fa = doSoftFloat rm (f16_to_ui64 fa (roundingModeToInt rm) 0x1)
 
 f16ToI32 :: RoundingMode -> Word16 -> I32Result
-f16ToI32 rm fa = doSoftFloat rm (f16_to_i32 fa (fromIntegral $ fromEnum rm) 0x1)
+f16ToI32 rm fa = doSoftFloat rm (f16_to_i32 fa (roundingModeToInt rm) 0x1)
 
 f16ToI64 :: RoundingMode -> Word16 -> I64Result
-f16ToI64 rm fa = doSoftFloat rm (f16_to_i64 fa (fromIntegral $ fromEnum rm) 0x1)
+f16ToI64 rm fa = doSoftFloat rm (f16_to_i64 fa (roundingModeToInt rm) 0x1)
 
 f32ToUi32 :: RoundingMode -> Word32 -> Ui32Result
-f32ToUi32 rm fa = doSoftFloat rm (f32_to_ui32 fa (fromIntegral $ fromEnum rm) 0x1)
+f32ToUi32 rm fa = doSoftFloat rm (f32_to_ui32 fa (roundingModeToInt rm) 0x1)
 
 f32ToUi64 :: RoundingMode -> Word32 -> Ui64Result
-f32ToUi64 rm fa = doSoftFloat rm (f32_to_ui64 fa (fromIntegral $ fromEnum rm) 0x1)
+f32ToUi64 rm fa = doSoftFloat rm (f32_to_ui64 fa (roundingModeToInt rm) 0x1)
 
 f32ToI32 :: RoundingMode -> Word32 -> I32Result
-f32ToI32 rm fa = doSoftFloat rm (f32_to_i32 fa (fromIntegral $ fromEnum rm) 0x1)
+f32ToI32 rm fa = doSoftFloat rm (f32_to_i32 fa (roundingModeToInt rm) 0x1)
 
 f32ToI64 :: RoundingMode -> Word32 -> I64Result
-f32ToI64 rm fa = doSoftFloat rm (f32_to_i64 fa (fromIntegral $ fromEnum rm) 0x1)
+f32ToI64 rm fa = doSoftFloat rm (f32_to_i64 fa (roundingModeToInt rm) 0x1)
 
 f64ToUi32 :: RoundingMode -> Word64 -> Ui32Result
-f64ToUi32 rm fa = doSoftFloat rm (f64_to_ui32 fa (fromIntegral $ fromEnum rm) 0x1)
+f64ToUi32 rm fa = doSoftFloat rm (f64_to_ui32 fa (roundingModeToInt rm) 0x1)
 
 f64ToUi64 :: RoundingMode -> Word64 -> Ui64Result
-f64ToUi64 rm fa = doSoftFloat rm (f64_to_ui64 fa (fromIntegral $ fromEnum rm) 0x1)
+f64ToUi64 rm fa = doSoftFloat rm (f64_to_ui64 fa (roundingModeToInt rm) 0x1)
 
 f64ToI32 :: RoundingMode -> Word64 -> I32Result
-f64ToI32 rm fa = doSoftFloat rm (f64_to_i32 fa (fromIntegral $ fromEnum rm) 0x1)
+f64ToI32 rm fa = doSoftFloat rm (f64_to_i32 fa (roundingModeToInt rm) 0x1)
 
 f64ToI64 :: RoundingMode -> Word64 -> I64Result
-f64ToI64 rm fa = doSoftFloat rm (f64_to_i64 fa (fromIntegral $ fromEnum rm) 0x1)
+f64ToI64 rm fa = doSoftFloat rm (f64_to_i64 fa (roundingModeToInt rm) 0x1)
 
 ----------------------------------------------------------------------
 -- Float to float conversions
@@ -317,7 +329,7 @@ f64ToF32 rm fa = doSoftFloat rm (f64_to_f32 fa)
 -- 16-bit operations
 
 f16RoundToInt :: RoundingMode -> Word16 -> F16Result
-f16RoundToInt rm fa = doSoftFloat rm (f16_roundToInt fa (fromIntegral $ fromEnum rm) 0x1)
+f16RoundToInt rm fa = doSoftFloat rm (f16_roundToInt fa (roundingModeToInt rm) 0x1)
 
 f16Add :: RoundingMode -> Word16 -> Word16 -> F16Result
 f16Add rm fa fb = doSoftFloat rm (f16_add fa fb)
@@ -340,32 +352,32 @@ f16Rem rm fa fb = doSoftFloat rm (f16_rem fa fb)
 f16Sqrt :: RoundingMode -> Word16 -> F16Result
 f16Sqrt rm fa = doSoftFloat rm (f16_sqrt fa)
 
-f16Eq :: Word16 -> Word16 -> CBoolResult
-f16Eq fa fb = doSoftFloat RoundNearEven (f16_eq fa fb)
+f16Eq :: Word16 -> Word16 -> BoolResult
+f16Eq fa fb = doSoftFloatBool RoundNearEven (f16_eq fa fb)
 
-f16Le :: Word16 -> Word16 -> CBoolResult
-f16Le fa fb = doSoftFloat RoundNearEven (f16_le fa fb)
+f16Le :: Word16 -> Word16 -> BoolResult
+f16Le fa fb = doSoftFloatBool RoundNearEven (f16_le fa fb)
 
-f16Lt :: Word16 -> Word16 -> CBoolResult
-f16Lt fa fb = doSoftFloat RoundNearEven (f16_lt fa fb)
+f16Lt :: Word16 -> Word16 -> BoolResult
+f16Lt fa fb = doSoftFloatBool RoundNearEven (f16_lt fa fb)
 
-f16EqSignaling :: Word16 -> Word16 -> CBoolResult
-f16EqSignaling fa fb = doSoftFloat RoundNearEven (f16_eq_signaling fa fb)
+f16EqSignaling :: Word16 -> Word16 -> BoolResult
+f16EqSignaling fa fb = doSoftFloatBool RoundNearEven (f16_eq_signaling fa fb)
 
-f16LeQuiet :: Word16 -> Word16 -> CBoolResult
-f16LeQuiet fa fb = doSoftFloat RoundNearEven (f16_le_quiet fa fb)
+f16LeQuiet :: Word16 -> Word16 -> BoolResult
+f16LeQuiet fa fb = doSoftFloatBool RoundNearEven (f16_le_quiet fa fb)
 
-f16LtQuiet :: Word16 -> Word16 -> CBoolResult
-f16LtQuiet fa fb = doSoftFloat RoundNearEven (f16_lt_quiet fa fb)
+f16LtQuiet :: Word16 -> Word16 -> BoolResult
+f16LtQuiet fa fb = doSoftFloatBool RoundNearEven (f16_lt_quiet fa fb)
 
-f16IsSignalingNaN :: Word16 -> CBoolResult
-f16IsSignalingNaN fa = doSoftFloat RoundNearEven (f16_isSignalingNaN fa)
+f16IsSignalingNaN :: Word16 -> BoolResult
+f16IsSignalingNaN fa = doSoftFloatBool RoundNearEven (f16_isSignalingNaN fa)
 
 ----------------------------------------------------------------------
 -- 32-bit operations
 
 f32RoundToInt :: RoundingMode -> Word32 -> F32Result
-f32RoundToInt rm fa = doSoftFloat rm (f32_roundToInt fa (fromIntegral $ fromEnum rm) 0x1)
+f32RoundToInt rm fa = doSoftFloat rm (f32_roundToInt fa (roundingModeToInt rm) 0x1)
 
 f32Add :: RoundingMode -> Word32 -> Word32 -> F32Result
 f32Add rm fa fb = doSoftFloat rm (f32_add fa fb)
@@ -388,32 +400,32 @@ f32Rem rm fa fb = doSoftFloat rm (f32_rem fa fb)
 f32Sqrt :: RoundingMode -> Word32 -> F32Result
 f32Sqrt rm fa = doSoftFloat rm (f32_sqrt fa)
 
-f32Eq :: Word32 -> Word32 -> CBoolResult
-f32Eq fa fb = doSoftFloat RoundNearEven (f32_eq fa fb)
+f32Eq :: Word32 -> Word32 -> BoolResult
+f32Eq fa fb = doSoftFloatBool RoundNearEven (f32_eq fa fb)
 
-f32Le :: Word32 -> Word32 -> CBoolResult
-f32Le fa fb = doSoftFloat RoundNearEven (f32_le fa fb)
+f32Le :: Word32 -> Word32 -> BoolResult
+f32Le fa fb = doSoftFloatBool RoundNearEven (f32_le fa fb)
 
-f32Lt :: Word32 -> Word32 -> CBoolResult
-f32Lt fa fb = doSoftFloat RoundNearEven (f32_lt fa fb)
+f32Lt :: Word32 -> Word32 -> BoolResult
+f32Lt fa fb = doSoftFloatBool RoundNearEven (f32_lt fa fb)
 
-f32EqSignaling :: Word32 -> Word32 -> CBoolResult
-f32EqSignaling fa fb = doSoftFloat RoundNearEven (f32_eq_signaling fa fb)
+f32EqSignaling :: Word32 -> Word32 -> BoolResult
+f32EqSignaling fa fb = doSoftFloatBool RoundNearEven (f32_eq_signaling fa fb)
 
-f32LeQuiet :: Word32 -> Word32 -> CBoolResult
-f32LeQuiet fa fb = doSoftFloat RoundNearEven (f32_le_quiet fa fb)
+f32LeQuiet :: Word32 -> Word32 -> BoolResult
+f32LeQuiet fa fb = doSoftFloatBool RoundNearEven (f32_le_quiet fa fb)
 
-f32LtQuiet :: Word32 -> Word32 -> CBoolResult
-f32LtQuiet fa fb = doSoftFloat RoundNearEven (f32_lt_quiet fa fb)
+f32LtQuiet :: Word32 -> Word32 -> BoolResult
+f32LtQuiet fa fb = doSoftFloatBool RoundNearEven (f32_lt_quiet fa fb)
 
-f32IsSignalingNaN :: Word32 -> CBoolResult
-f32IsSignalingNaN fa = doSoftFloat RoundNearEven (f32_isSignalingNaN fa)
+f32IsSignalingNaN :: Word32 -> BoolResult
+f32IsSignalingNaN fa = doSoftFloatBool RoundNearEven (f32_isSignalingNaN fa)
 
 ----------------------------------------------------------------------
 -- 64-bit operations
 
 f64RoundToInt :: RoundingMode -> Word64 -> F64Result
-f64RoundToInt rm fa = doSoftFloat rm (f64_roundToInt fa (fromIntegral $ fromEnum rm) 0x1)
+f64RoundToInt rm fa = doSoftFloat rm (f64_roundToInt fa (roundingModeToInt rm) 0x1)
 
 f64Add :: RoundingMode -> Word64 -> Word64 -> F64Result
 f64Add rm fa fb = doSoftFloat rm (f64_add fa fb)
@@ -436,23 +448,24 @@ f64Rem rm fa fb = doSoftFloat rm (f64_rem fa fb)
 f64Sqrt :: RoundingMode -> Word64 -> F64Result
 f64Sqrt rm fa = doSoftFloat rm (f64_sqrt fa)
 
-f64Eq :: Word64 -> Word64 -> CBoolResult
-f64Eq fa fb = doSoftFloat RoundNearEven (f64_eq fa fb)
+f64Eq :: Word64 -> Word64 -> BoolResult
+f64Eq fa fb = doSoftFloatBool RoundNearEven (f64_eq fa fb)
 
-f64Le :: Word64 -> Word64 -> CBoolResult
-f64Le fa fb = doSoftFloat RoundNearEven (f64_le fa fb)
+f64Le :: Word64 -> Word64 -> BoolResult
+f64Le fa fb = doSoftFloatBool RoundNearEven (f64_le fa fb)
 
-f64Lt :: Word64 -> Word64 -> CBoolResult
-f64Lt fa fb = doSoftFloat RoundNearEven (f64_lt fa fb)
+f64Lt :: Word64 -> Word64 -> BoolResult
+f64Lt fa fb = doSoftFloatBool RoundNearEven (f64_lt fa fb)
 
-f64EqSignaling :: Word64 -> Word64 -> CBoolResult
-f64EqSignaling fa fb = doSoftFloat RoundNearEven (f64_eq_signaling fa fb)
+f64EqSignaling :: Word64 -> Word64 -> BoolResult
+f64EqSignaling fa fb = doSoftFloatBool RoundNearEven (f64_eq_signaling fa fb)
 
-f64LeQuiet :: Word64 -> Word64 -> CBoolResult
-f64LeQuiet fa fb = doSoftFloat RoundNearEven (f64_le_quiet fa fb)
+f64LeQuiet :: Word64 -> Word64 -> BoolResult
+f64LeQuiet fa fb = doSoftFloatBool RoundNearEven (f64_le_quiet fa fb)
 
-f64LtQuiet :: Word64 -> Word64 -> CBoolResult
-f64LtQuiet fa fb = doSoftFloat RoundNearEven (f64_lt_quiet fa fb)
+f64LtQuiet :: Word64 -> Word64 -> BoolResult
+f64LtQuiet fa fb = doSoftFloatBool RoundNearEven (f64_lt_quiet fa fb)
 
-f64IsSignalingNaN :: Word64 -> CBoolResult
-f64IsSignalingNaN fa = doSoftFloat RoundNearEven (f64_isSignalingNaN fa)
+f64IsSignalingNaN :: Word64 -> BoolResult
+f64IsSignalingNaN fa = doSoftFloatBool RoundNearEven (f64_isSignalingNaN fa)
+

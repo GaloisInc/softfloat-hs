@@ -175,36 +175,49 @@ uint16_t hs_f16_sqrt( uint16_t f_int ) {
 }
 bool hs_f16_eq( uint16_t f_int, uint16_t g_int ) {
   float16_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f16_eq(f, g);
   return res;
 }
 bool hs_f16_le( uint16_t f_int, uint16_t g_int ) {
   float16_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f16_le(f, g);
   return res;
 }
 bool hs_f16_lt( uint16_t f_int, uint16_t g_int ) {
   float16_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f16_lt(f, g);
   return res;
 }
 bool hs_f16_eq_signaling( uint16_t f_int, uint16_t g_int ) {
   float16_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f16_eq_signaling(f, g);
   return res;
 }
 bool hs_f16_le_quiet( uint16_t f_int, uint16_t g_int ) {
   float16_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f16_le_quiet(f, g);
   return res;
 }
 bool hs_f16_lt_quiet( uint16_t f_int, uint16_t g_int ) {
   float16_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f16_lt_quiet(f, g);
   return res;
 }
 bool hs_f16_isSignalingNaN( uint16_t f_int ) {
   float16_t f;
+  f.v = f_int;
   bool res = f16_isSignalingNaN(f);
   return res;
 }
@@ -313,36 +326,49 @@ uint32_t hs_f32_sqrt( uint32_t f_int ) {
 }
 bool hs_f32_eq( uint32_t f_int, uint32_t g_int ) {
   float32_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f32_eq(f, g);
   return res;
 }
 bool hs_f32_le( uint32_t f_int, uint32_t g_int ) {
   float32_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f32_le(f, g);
   return res;
 }
 bool hs_f32_lt( uint32_t f_int, uint32_t g_int ) {
   float32_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f32_lt(f, g);
   return res;
 }
 bool hs_f32_eq_signaling( uint32_t f_int, uint32_t g_int ) {
   float32_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f32_eq_signaling(f, g);
   return res;
 }
 bool hs_f32_le_quiet( uint32_t f_int, uint32_t g_int ) {
   float32_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f32_le_quiet(f, g);
   return res;
 }
 bool hs_f32_lt_quiet( uint32_t f_int, uint32_t g_int ) {
   float32_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f32_lt_quiet(f, g);
   return res;
 }
 bool hs_f32_isSignalingNaN( uint32_t f_int ) {
   float32_t f;
+  f.v = f_int;
   bool res = f32_isSignalingNaN(f);
   return res;
 }
@@ -451,36 +477,49 @@ uint64_t hs_f64_sqrt( uint64_t f_int ) {
 }
 bool hs_f64_eq( uint64_t f_int, uint64_t g_int ) {
   float64_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f64_eq(f, g);
   return res;
 }
 bool hs_f64_le( uint64_t f_int, uint64_t g_int ) {
   float64_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f64_le(f, g);
   return res;
 }
 bool hs_f64_lt( uint64_t f_int, uint64_t g_int ) {
   float64_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f64_lt(f, g);
   return res;
 }
 bool hs_f64_eq_signaling( uint64_t f_int, uint64_t g_int ) {
   float64_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f64_eq_signaling(f, g);
   return res;
 }
 bool hs_f64_le_quiet( uint64_t f_int, uint64_t g_int ) {
   float64_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f64_le_quiet(f, g);
   return res;
 }
 bool hs_f64_lt_quiet( uint64_t f_int, uint64_t g_int ) {
   float64_t f, g;
+  f.v = f_int;
+  g.v = g_int;
   bool res = f64_lt_quiet(f, g);
   return res;
 }
 bool hs_f64_isSignalingNaN( uint64_t f_int ) {
   float64_t f;
+  f.v = f_int;
   bool res = f64_isSignalingNaN(f);
   return res;
 }

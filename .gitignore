@@ -1,1 +1,10 @@
 .stack-work
+dist*
+.ghc.environment.*
+lib/libsoftfloat.so
+lib/testfloat
+lib/testfloat_gen
+lib/testfloat_ver
+lib/testsoftfloat
+lib/timesoftfloat
+
