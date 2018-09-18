@@ -5,7 +5,7 @@
 #include <math.h>
 #include <fenv.h>
 #include <string.h>
-#pragma STDC FENV_ACCESS on
+#pragma STDC FENV_ACCESS ON
 
 
 #define DEBUG_PRINT 0
@@ -23,9 +23,9 @@ union operand result = {0};
 int rounding_mode = 0;
 
 /**
- * Expected input: "f16_add" "-rnear_even" "87FF" "E850" "E850" 
+ * Expected input: "f16_add" "-rnear_even" "87FF" "E850" "E850"
  * HW: f32_add -rnear_even 683F7FF C07F3FFF C07F3FFF
- * 
+ *
  */
 int main(int argc, char *argv[])
 {

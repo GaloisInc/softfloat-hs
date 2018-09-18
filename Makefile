@@ -21,10 +21,12 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 SPECIALIZE_TYPE=$(COMPILE_TYPE) SOFTFLOAT_OPTS="-DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -fpic"
 CFLAGS = -shared
+LIBPATH=/usr/lib/libsoftfloat.so
 endif
 ifeq ($(UNAME), Darwin)
-SPECIALIZE_TYPE=$(COMPILE_TYPE)
+SPECIALIZE_TYPE=$(COMPILE_TYPE) # SOFTFLOAT_OPTS="-DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32"
 CFLAGS = -dynamiclib
+LIBPATH=/usr/local/lib/libsoftfloat.dylib
 endif
 
 SOFTFLOAT_PATH = berkeley-softfloat-3/build/$(SYSTEM)
@@ -36,10 +38,10 @@ fenv:
 	cd test/fenv && make
 
 uninstall: clean
-	sudo rm /usr/lib/libsoftfloat.so
+	sudo rm $(LIBPATH)
 
 install:
-	sudo cp lib/libsoftfloat.so /usr/lib/libsoftfloat.so
+	sudo cp lib/libsoftfloat.so $(LIBPATH)
 
 softfloat:
 	cd $(SOFTFLOAT_PATH) &&	make SPECIALIZE_TYPE=$(SPECIALIZE_TYPE)
