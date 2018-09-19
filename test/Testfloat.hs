@@ -1,7 +1,7 @@
 module Main where
 
 import           Ops
-import           System.Process                 ( readProcess )
+import           System.Process                 ( readProcess, readProcessWithExitCode )
 import           Data.List.Split
 import           Control.Monad                  ( forM_ )
 import           System.Exit
@@ -51,7 +51,8 @@ floatOps :: [String]
 floatOps = [ f ++ "_" ++ op | f <- floats, op <- ops ]
 
 arithmeticOps :: [String]
-arithmeticOps = intToFloat ++ floatToFloat ++ floatToInt ++ floatOps
+--arithmeticOps = intToFloat ++ floatToFloat ++ floatToInt ++ floatOps
+arithmeticOps = floatToFloat
 
 roundings :: [String]
 roundings = ["near_even", "minMag", "min", "max", "near_maxMag", "odd"]
@@ -75,9 +76,7 @@ createArgs = do
       "Tesftloat for softfloat-hs"
     )
   mySeed cmdOpts = if seed cmdOpts == 0
-    then do
-      rnd <- R.randomRIO (1, 65535)
-      return rnd
+    then R.randomRIO (1, 65535)
     else return (seed cmdOpts)
 
 data AppOptions = AppOptions
@@ -162,12 +161,17 @@ main = do
     then do
       -- TODO: hw tests are not supported yet
       let hwInput = opArgs ++ operands
-      -- putStrLn $ "HW: " ++ show hwInput
-      res <- readProcess "test/fenv/hw_float" hwInput []
-      -- putStrLn $ "HW returned: " ++ res
-      --putStrLn $ "When split: " ++ show (splitOn " " res)
-      let hwResult = readResult (init $ splitOn " " res) typeArg
-      -- putStrLn $ "Hw result: " ++ show hwResult
-      return hwResult
+      --putStrLn $ "HW: " ++ show hwInput
+      (exitCode, res, _) <- readProcessWithExitCode "test/fenv/hw_float" hwInput []
+      if exitCode /= ExitSuccess
+      then do
+        -- putStrLn $ "HW error: " ++ res
+        return expectedResult
+      else do
+        --putStrLn $ "HW returned: " ++ res
+        --putStrLn $ "When split: " ++ show (splitOn " " res)
+        let hwResult = readResult (init $ splitOn " " res) typeArg
+        --putStrLn $ "Hw result: " ++ show hwResult
+        return hwResult
     else return expectedResult
 
