@@ -6,9 +6,8 @@ import           SoftFloat
 import           Data.Word
 import           Data.Int
 import           Data.Bits
-import           Numeric                        ( readHex )
+import           Numeric                        ( readHex, showIntAtBase )
 import           Data.List                      ( isInfixOf )
-import           Numeric                        ( showIntAtBase )
 import           Data.Char                      ( intToDigit )
 
 type FloatOp16 = FloatOp Word16

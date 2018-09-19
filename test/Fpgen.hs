@@ -76,82 +76,78 @@ data FloatOperation = Add -- +
 -- This looks for letters, then spaces, then digits.
 -- we then return letters and digits in a tuple.
 parseTypeWidth :: Parsec.Parsec String () FloatType
-parseTypeWidth = do
-  Parsec.choice
-    [ Parsec.try $ Parsec.string "b32" >> return B32
-    , Parsec.try $ Parsec.string "b64" >> return B64
-    , Parsec.try $ Parsec.string "b128" >> return B128
-    , Parsec.try $ Parsec.string "d32" >> return D32
-    , Parsec.try $ Parsec.string "d64" >> return D64
-    , Parsec.try $ Parsec.string "d128" >> return D128
-    ]
+parseTypeWidth = Parsec.choice
+  [ Parsec.try $ Parsec.string "b32" >> return B32
+  , Parsec.try $ Parsec.string "b64" >> return B64
+  , Parsec.try $ Parsec.string "b128" >> return B128
+  , Parsec.try $ Parsec.string "d32" >> return D32
+  , Parsec.try $ Parsec.string "d64" >> return D64
+  , Parsec.try $ Parsec.string "d128" >> return D128
+  ]
 
 -- TODO: probably should add `Parsec.try $ ` to all multicharacter comparisons
 parseOperation :: Parsec.Parsec String () FloatOperation
-parseOperation = do
-  Parsec.choice
-    [ Parsec.string "+" >> return Add
-    , Parsec.string "-" >> return Subtract
-    , Parsec.try $ Parsec.string "*+" >> return MultiplyAdd
-    , Parsec.string "/" >> return Divide
-    , Parsec.string "*" >> return Multiply
-    , Parsec.string "V" >> return SquareRoot
-    , Parsec.string "%" >> return Remainder
-    , Parsec.string "rfi" >> return RoundFloatToInt
-    , Parsec.try $ Parsec.string "cff" >> return ConvertFloatToFloat
-    , Parsec.try $ Parsec.string "cfi" >> return ConvertFloatToInt
-    , Parsec.try $ Parsec.string "cif" >> return ConvertIntToFloat
-    , Parsec.try $ Parsec.string "cfd" >> return ConvertToDecimalStr
-    , Parsec.try $ Parsec.string "cdf" >> return ConvertFromDecimalStr
-    , Parsec.string "qC" >> return QuietComparison
-    , Parsec.string "sC" >> return SignallingComparsion
-    , Parsec.string "cp" >> return Copy
-    , Parsec.string "~" >> return Negate
-    , Parsec.string "A" >> return Abs
-    , Parsec.string "@" >> return CopySign
-    , Parsec.string "S" >> return ScalB
-    , Parsec.string "L" >> return LogB
-    , Parsec.string "Na" >> return NextAfter
-    , Parsec.try $ Parsec.string "?-" >> return IsSigned
-    , Parsec.try $ Parsec.string "?n" >> return IsNormal
-    , Parsec.try $ Parsec.string "?f" >> return IsFinite
-    , Parsec.try $ Parsec.string "?0" >> return IsZero
-    , Parsec.try $ Parsec.string "?i" >> return IsInf
-    , Parsec.try $ Parsec.string "?N" >> return IsNan
-    , Parsec.try $ Parsec.string "?sN" >> return IsSignaling
-    , Parsec.try $ Parsec.string "?s" >> return IsSubNormal
-    , Parsec.string "?" >> return Class
-    , Parsec.try $ Parsec.string "<C" >> return Minimum
-    , Parsec.try $ Parsec.string ">C" >> return Maximum
-    , Parsec.string "<A" >> return MinNumMag
-    , Parsec.string ">A" >> return MaxNumMag
-    , Parsec.string "=quant" >> return SameQuantum
-    , Parsec.string "quant" >> return Quantize
-    , Parsec.string "Nu" >> return NextUp
-    , Parsec.string "Nd" >> return NextDown
-    , Parsec.string "eq" >> return Equivalent
-    ]
+parseOperation = Parsec.choice
+  [ Parsec.string "+" >> return Add
+  , Parsec.string "-" >> return Subtract
+  , Parsec.try $ Parsec.string "*+" >> return MultiplyAdd
+  , Parsec.string "/" >> return Divide
+  , Parsec.string "*" >> return Multiply
+  , Parsec.string "V" >> return SquareRoot
+  , Parsec.string "%" >> return Remainder
+  , Parsec.string "rfi" >> return RoundFloatToInt
+  , Parsec.try $ Parsec.string "cff" >> return ConvertFloatToFloat
+  , Parsec.try $ Parsec.string "cfi" >> return ConvertFloatToInt
+  , Parsec.try $ Parsec.string "cif" >> return ConvertIntToFloat
+  , Parsec.try $ Parsec.string "cfd" >> return ConvertToDecimalStr
+  , Parsec.try $ Parsec.string "cdf" >> return ConvertFromDecimalStr
+  , Parsec.string "qC" >> return QuietComparison
+  , Parsec.string "sC" >> return SignallingComparsion
+  , Parsec.string "cp" >> return Copy
+  , Parsec.string "~" >> return Negate
+  , Parsec.string "A" >> return Abs
+  , Parsec.string "@" >> return CopySign
+  , Parsec.string "S" >> return ScalB
+  , Parsec.string "L" >> return LogB
+  , Parsec.string "Na" >> return NextAfter
+  , Parsec.try $ Parsec.string "?-" >> return IsSigned
+  , Parsec.try $ Parsec.string "?n" >> return IsNormal
+  , Parsec.try $ Parsec.string "?f" >> return IsFinite
+  , Parsec.try $ Parsec.string "?0" >> return IsZero
+  , Parsec.try $ Parsec.string "?i" >> return IsInf
+  , Parsec.try $ Parsec.string "?N" >> return IsNan
+  , Parsec.try $ Parsec.string "?sN" >> return IsSignaling
+  , Parsec.try $ Parsec.string "?s" >> return IsSubNormal
+  , Parsec.string "?" >> return Class
+  , Parsec.try $ Parsec.string "<C" >> return Minimum
+  , Parsec.try $ Parsec.string ">C" >> return Maximum
+  , Parsec.string "<A" >> return MinNumMag
+  , Parsec.string ">A" >> return MaxNumMag
+  , Parsec.string "=quant" >> return SameQuantum
+  , Parsec.string "quant" >> return Quantize
+  , Parsec.string "Nu" >> return NextUp
+  , Parsec.string "Nd" >> return NextDown
+  , Parsec.string "eq" >> return Equivalent
+  ]
 
 parseRoundingMode :: Parsec.Parsec String () RoundingMode
-parseRoundingMode = do
-  Parsec.choice
-    [ Parsec.string ">" >> return RoundMax
-    , Parsec.string "<" >> return RoundMin
-    , Parsec.string "0" >> return RoundMinMag
-    , Parsec.try $ Parsec.string "=0" >> return RoundNearEven
-    , Parsec.string "=^" >> return RoundNearMaxMag
-    ]
+parseRoundingMode = Parsec.choice
+  [ Parsec.string ">" >> return RoundMax
+  , Parsec.string "<" >> return RoundMin
+  , Parsec.string "0" >> return RoundMinMag
+  , Parsec.try $ Parsec.string "=0" >> return RoundNearEven
+  , Parsec.string "=^" >> return RoundNearMaxMag
+  ]
 
 
 parseExceptionFlags :: Parsec.Parsec String () ExceptionFlags
-parseExceptionFlags = do
-  Parsec.choice
-    [ Parsec.char 'x' >> return (ExceptionFlags True False False False False)
-    , Parsec.char 'u' >> return (ExceptionFlags False True False False False)
-    , Parsec.char 'o' >> return (ExceptionFlags False False True False False)
-    , Parsec.char 'z' >> return (ExceptionFlags False False False True False)
-    , Parsec.char 'i' >> return (ExceptionFlags False False False False True)
-    ]
+parseExceptionFlags = Parsec.choice
+  [ Parsec.char 'x' >> return (ExceptionFlags True False False False False)
+  , Parsec.char 'u' >> return (ExceptionFlags False True False False False)
+  , Parsec.char 'o' >> return (ExceptionFlags False False True False False)
+  , Parsec.char 'z' >> return (ExceptionFlags False False False True False)
+  , Parsec.char 'i' >> return (ExceptionFlags False False False False True)
+  ]
 
 parseException :: [ExceptionFlags] -> ExceptionFlags
 parseException flags = ExceptionFlags
@@ -227,8 +223,7 @@ parseSubnormal32 = do
   return $ sign .|. (read significandF)
 
 parseSign :: Parsec.Parsec String () Int
-parseSign = do
-  Parsec.choice [Parsec.char '-' >> return (-1), return 1]
+parseSign = Parsec.choice [Parsec.char '-' >> return (-1), return 1]
 
 parseExponent :: Parsec.Parsec String () Word32
 parseExponent = do
@@ -250,20 +245,19 @@ parseNormal32 = do
   return $ sign .|. biasedExponent .|. (read significandF)
 
 convetFloat32ToBinary :: Parsec.Parsec String () Word32
-convetFloat32ToBinary = do
-  Parsec.choice
-    [ Parsec.char 'Q' >> return qNan32
-    , Parsec.char 'S' >> return sNan32
-    , Parsec.char '#' >> return defaultNan32 -- TODO: this means `no result`
-    , Parsec.try $ Parsec.string "+Inf" >> return plusInf32
-    , Parsec.try $ Parsec.string "-Inf" >> return minusInf32
-    , Parsec.try $ Parsec.string "+Zero" >> return plusZero32
-    , Parsec.try $ Parsec.string "-Zero" >> return minusZero32
-    , Parsec.try $ Parsec.string "0x0" >> return 0x0
-    , Parsec.try $ Parsec.string "0x1" >> return 0x1
-    , Parsec.try $ parseNormal32
-    , Parsec.try $ parseSubnormal32
-    ]
+convetFloat32ToBinary = Parsec.choice
+  [ Parsec.char 'Q' >> return qNan32
+  , Parsec.char 'S' >> return sNan32
+  , Parsec.char '#' >> return defaultNan32 -- TODO: this means `no result`
+  , Parsec.try $ Parsec.string "+Inf" >> return plusInf32
+  , Parsec.try $ Parsec.string "-Inf" >> return minusInf32
+  , Parsec.try $ Parsec.string "+Zero" >> return plusZero32
+  , Parsec.try $ Parsec.string "-Zero" >> return minusZero32
+  , Parsec.try $ Parsec.string "0x0" >> return 0x0
+  , Parsec.try $ Parsec.string "0x1" >> return 0x1
+  , Parsec.try $ parseNormal32
+  , Parsec.try $ parseSubnormal32
+  ]
 
 
 -- TODO: handle 128 bit types?
@@ -311,9 +305,8 @@ testParsec str = do
   case result of
     Right val -> do
       let s = (showIntAtBase 2 intToDigit val "")
-      putStrLn $ (replicate (32 - length s) '0') ++ s
-    Left err -> do
-      putStrLn (show err)
+      putStrLn $ replicate (32 - length s) '0' ++ s
+    Left err -> print err
 
 testSuite :: String
 testSuite = "./test/fpgen/test_suite/"
@@ -332,24 +325,20 @@ main = do
         Right op -> do
           let res = executeOperation op
           case res of
-            Right _s -> do
-              return ()
-            Left err -> do
-              if isInfixOf "Results are not matching" err
-                then do
-                  putStrLn
-                    $  ">>> "
-                    ++ file
-                    ++ ": Line "
-                    ++ (show (lineNumber :: Integer))
-                  putStrLn line
-                  putStrLn $ "Error: " ++ err
-                  putStrLn "\n"
-                else return ()
+            Right _s  -> return ()
+            Left  err -> when ("Results are not matching" `isInfixOf` err) $ do
+              putStrLn
+                $  ">>> "
+                ++ file
+                ++ ": Line "
+                ++ (show (lineNumber :: Integer))
+              putStrLn line
+              putStrLn $ "Error: " ++ err
+              putStrLn "\n"
         Left err -> do
           putStrLn $ "Line " ++ (show (lineNumber :: Integer))
           putStrLn line
-          putStrLn (show err)
+          print err
   putStrLn "All good, exiting!"
 
 checkOpArguments :: FpGenOperation -> Bool
@@ -371,7 +360,7 @@ checkOpArguments fp = case _operation fp of
              , IsSignaling
              , ConvertFloatToFloat
              ]
-    -> if (length types == 1) && (length inputs == 1) then True else False
+    -> (length types == 1) && (length inputs == 1)
   -- 2 arguments
   op
     | op
@@ -384,18 +373,16 @@ checkOpArguments fp = case _operation fp of
              , MaxNumMag
              , MinNumMag
              ]
-    -> if (length types == 1) && (length inputs == 2) then True else False
+    -> (length types == 1) && (length inputs == 2)
   -- 3 arguments
-  MultiplyAdd ->
-    if (length types == 1) && (length inputs == 3) then True else False
-  _ -> False
+  MultiplyAdd -> (length types == 1) && (length inputs == 3)
+  _           -> False
  where
   types  = _types fp
   inputs = _inputsFloat fp
 
 convertOpArguments32 :: [String] -> Either Parsec.ParseError [Word32]
-convertOpArguments32 inputs =
-  mapM (Parsec.parse convetFloat32ToBinary "") inputs
+convertOpArguments32 = mapM (Parsec.parse convetFloat32ToBinary "")
 
 getOpArguments :: FpGenOperation -> [String]
 getOpArguments fp = _inputsFloat fp ++ [_outputFloat fp]
@@ -405,7 +392,7 @@ executeOperation fp = do
     --evalTest testB32  ("Warning: Unsupported type, currently all operations have to be B32\n" ++ show fp)
   _ <- evalTest
     testB32
-    ("Warning: Unsupported type, currently all operations have to be b32")
+    "Warning: Unsupported type, currently all operations have to be b32"
   _ <- evalTest
     (checkOpArguments fp)
     (  "Argument check failed, maybe an incorrect number of arguments?\n"
@@ -415,8 +402,7 @@ executeOperation fp = do
   -- TODO: fix for different arg types
   let convResult = convertOpArguments32 (getOpArguments fp)
   case convResult of
-    Left err -> do
-      Left (show err)
+    Left err -> Left (show err)
     Right args -> do
         -- evaluate operations
       case _operation fp of
@@ -504,8 +490,8 @@ executeOperation fp = do
     )
 
   evalTest :: Bool -> String -> Either String String
-  evalTest b s | b == True = Right ""
+  evalTest b s | b = Right ""
                | otherwise = Left s
 
   testB32 :: Bool
-  testB32 = and (map (== B32) (_types fp))
+  testB32 = all (== B32) (_types fp)

@@ -3,7 +3,7 @@ module Main where
 import           Ops
 import           System.Process                 ( readProcess )
 import           Data.List.Split
-import           Control.Monad                  ( forM_ )
+import           Control.Monad                  ( forM_, when )
 import           System.Exit
 import qualified Options.Applicative           as O
 import           Data.Semigroup                 ( (<>) )
@@ -75,27 +75,13 @@ createArgs = do
       "Tesftloat for softfloat-hs"
     )
   mySeed cmdOpts = if seed cmdOpts == 0
-    then do
-      rnd <- R.randomRIO (1, 65535)
-      return rnd
+    then R.randomRIO (1, 65535)
     else return (seed cmdOpts)
 
 data AppOptions = AppOptions
   { seed :: Int
   , tests    :: Int
-  , hw :: Bool
   }
-
-testHardware :: IO Bool
-testHardware = do
-  cmdOpts <- O.execParser opts
-  return $ hw cmdOpts
- where
-  opts = O.info
-    (appOptions O.<**> O.helper)
-    (O.fullDesc <> O.progDesc descString <> O.header
-      "Tesftloat for softfloat-hs"
-    )
 
 appOptions :: O.Parser AppOptions
 appOptions =
@@ -113,7 +99,6 @@ appOptions =
           <> O.value 6133248
           <> O.help "Number of generated test vectors for each operation"
           )
-    <*> O.switch (O.long "hw" <> O.help "Test on actual hardware")
 
 descString :: String
 descString =
@@ -124,9 +109,8 @@ descString =
 main :: IO ()
 main = do
   progArgs <- createArgs
-  testHw   <- testHardware
-  forM_ progArgs $ \(args) -> do
-    putStrLn $ show args
+  forM_ progArgs $ \args -> do
+    print args
     testVectors <- readProcess "lib/testfloat_gen" args []
     putStrLn $ "Generated test cases: " ++ show (length $ lines testVectors)
     let testCases = zip (lines testVectors) [1 ..] :: [(String, Integer)]
@@ -142,32 +126,11 @@ main = do
             readResult (drop (length splitData - 2) $ splitData) typeArg
       let sfResult = executeOp op
 
-      hwResult <- getHwResult testHw operands typeArg opArgs expectedResult
-
-      if (sfResult /= expectedResult) || (hwResult /= expectedResult)
-        then do
-          putStrLn $ "Test " ++ show testNumber ++ " fails: "
-          putStrLn testData
-          putStrLn $ show op
-          putStrLn $ "Expected results:     " ++ display expectedResult
-          putStrLn $ "Softfloat-hs results: " ++ display sfResult
-          putStrLn $ printHwResult testHw hwResult
-          exitFailure
-        else do
-          return ()
- where
-  printHwResult testHw hwResult =
-    if testHw then "Hw results:           " ++ display hwResult else ""
-  getHwResult testHw operands typeArg opArgs expectedResult = if testHw
-    then do
-      -- TODO: hw tests are not supported yet
-      let hwInput = opArgs ++ operands
-      -- putStrLn $ "HW: " ++ show hwInput
-      res <- readProcess "test/fenv/hw_float" hwInput []
-      -- putStrLn $ "HW returned: " ++ res
-      --putStrLn $ "When split: " ++ show (splitOn " " res)
-      let hwResult = readResult (init $ splitOn " " res) typeArg
-      -- putStrLn $ "Hw result: " ++ show hwResult
-      return hwResult
-    else return expectedResult
+      when (sfResult /= expectedResult) $ do
+        putStrLn $ "Test " ++ show testNumber ++ " fails: "
+        putStrLn testData
+        print op
+        putStrLn $ "Expected results:     " ++ display expectedResult
+        putStrLn $ "Softfloat-hs results: " ++ display sfResult
+        exitFailure
 
