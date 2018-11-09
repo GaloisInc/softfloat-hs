@@ -37,15 +37,15 @@ library
 --                        directory,
 --                        process
 
-executable testfloat
-  hs-source-dirs:      test
-  main-is:             Testfloat.hs
-  other-modules:       Ops
-  ghc-options:         -threaded -Wall
-  default-language:    Haskell2010
-  build-depends:       base,
-                       softfloat-hs,
-                       split,
-                       process,
-                       optparse-applicative,
-                       random
+-- executable testfloat
+--   hs-source-dirs:      test
+--   main-is:             Testfloat.hs
+--   other-modules:       Ops
+--   ghc-options:         -threaded -Wall
+--   default-language:    Haskell2010
+--   build-depends:       base,
+--                        softfloat-hs,
+--                        split,
+--                        process,
+--                        optparse-applicative,
+--                        random
