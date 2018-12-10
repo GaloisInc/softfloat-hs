@@ -8,3 +8,5 @@ lib/testfloat_ver
 lib/testsoftfloat
 lib/timesoftfloat
 
+lib/
+test/fenv
