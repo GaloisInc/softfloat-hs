@@ -13,8 +13,6 @@ library are captured as input arguments and additional outputs of each function.
 Installation
 ===
 
-We assume you have already installed the Haskell `stack ` build tool
-
 ## Step 1: Install softfloat
 SoftFloat is not too complicated to install, but it is best to build a dynamic
 library so that `softfloat-hs` can be loaded into ghci (which does not support
@@ -26,9 +24,15 @@ $ make
 $ sudo make install
 ```
 
-## Step 2: Build softfloat-hs with stack
+## Step 2: Build softfloat-hs
+With stack:
 ```shell
 stack build
+```
+
+With cabal new-build:
+```shell
+cabal new-build softfloat-hs
 ```
 
 ## Step 3: Test softfloat-hs
