@@ -21,20 +21,22 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 SPECIALIZE_TYPE=$(COMPILE_TYPE) SOFTFLOAT_OPTS="-DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -fpic"
 CFLAGS = -shared
-LIBPATH=/usr/lib/libsoftfloat.so
+LIBNAME=libsoftfloat.so
+LIBPATH=/usr/lib/$(LIBNAME)
 INCLUDEPATH=/usr/include
 endif
 ifeq ($(UNAME), Darwin)
 SPECIALIZE_TYPE=$(COMPILE_TYPE) # SOFTFLOAT_OPTS="-DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32"
 CFLAGS = -dynamiclib
-LIBPATH=/usr/local/lib/libsoftfloat.dylib
+LIBNAME=libsoftfloat.dylib
+LIBPATH=/usr/local/lib/$(LIBNAME)
 INCLUDEPATH=/usr/local/include
 endif
 
 SOFTFLOAT_PATH = berkeley-softfloat-3/build/$(SYSTEM)
 TESTFLOAT_PATH = berkeley-testfloat-3/build/$(SYSTEM)
 
-all: softfloat testfloat
+all: softfloat
 
 uninstall: clean
 	sudo rm $(LIBPATH)
@@ -42,14 +44,14 @@ uninstall: clean
 	sudo rm $(INCLUDEPATH)/softfloat_types.h
 
 install:
-	sudo cp lib/libsoftfloat.so $(LIBPATH)
+	sudo cp berkeley-softfloat-3/source/include/softfloat.h $(INCLUDEPATH)/softfloat.h
+	sudo cp berkeley-softfloat-3/source/include/softfloat_types.h $(INCLUDEPATH)/softfloat_types.h
+	sudo cp lib/$(LIBNAME) $(LIBPATH)
 
 softfloat:
 	cd $(SOFTFLOAT_PATH) &&	make SPECIALIZE_TYPE=$(SPECIALIZE_TYPE)
 	mkdir -p lib
-	sudo cp berkeley-softfloat-3/source/include/softfloat.h $(INCLUDEPATH)/softfloat.h
-	sudo cp berkeley-softfloat-3/source/include/softfloat_types.h $(INCLUDEPATH)/softfloat_types.h
-	gcc $(CFLAGS) -o lib/libsoftfloat.so $(SOFTFLOAT_PATH)/*.o
+	gcc $(CFLAGS) -o lib/$(LIBNAME) $(SOFTFLOAT_PATH)/*.o
 
 testfloat:
 	cd $(TESTFLOAT_PATH) &&	make all
@@ -61,7 +63,7 @@ testfloat:
 
 clean-softfloat:
 	cd $(SOFTFLOAT_PATH) && make clean
-	rm -rf lib/libsoftfloat.so
+	rm -rf lib/$(LIBNAME)
 
 clean-testfloat:
 	cd $(TESTFLOAT_PATH) && make clean
