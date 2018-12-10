@@ -34,13 +34,12 @@ endif
 SOFTFLOAT_PATH = berkeley-softfloat-3/build/$(SYSTEM)
 TESTFLOAT_PATH = berkeley-testfloat-3/build/$(SYSTEM)
 
-all: softfloat testfloat fenv
-
-fenv:
-	cd test/fenv && make
+all: softfloat testfloat
 
 uninstall: clean
 	sudo rm $(LIBPATH)
+	sudo rm $(INCLUDEPATH)/softfloat.h
+	sudo rm $(INCLUDEPATH)/softfloat_types.h
 
 install:
 	sudo cp lib/libsoftfloat.so $(LIBPATH)
@@ -48,8 +47,8 @@ install:
 softfloat:
 	cd $(SOFTFLOAT_PATH) &&	make SPECIALIZE_TYPE=$(SPECIALIZE_TYPE)
 	mkdir -p lib
-	cp berkeley-softfloat-3/source/include/softfloat.h $(INCLUDEPATH)/softfloat.h
-	cp berkeley-softfloat-3/source/include/softfloat_types.h $(INCLUDEPATH)/softfloat_types.h
+	sudo cp berkeley-softfloat-3/source/include/softfloat.h $(INCLUDEPATH)/softfloat.h
+	sudo cp berkeley-softfloat-3/source/include/softfloat_types.h $(INCLUDEPATH)/softfloat_types.h
 	gcc $(CFLAGS) -o lib/libsoftfloat.so $(SOFTFLOAT_PATH)/*.o
 
 testfloat:
