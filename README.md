@@ -76,6 +76,12 @@ Current Status
 The library is functional, although a few global variables are not yet captured
 (whether underflow is detected before or after rounding, for example).
 
+Known issues
+====
+Building softfloat on Darwin currently has some issues -- for whatever reason, some
+of the conversion functions to not work correctly in some of the corner
+cases (f32ToI32 in particular). We are investigating this currently.
+
 Other information
 ===
 
