@@ -39,14 +39,14 @@ TESTFLOAT_PATH = berkeley-testfloat-3/build/$(SYSTEM)
 all: softfloat
 
 uninstall: clean
-	sudo rm $(LIBPATH)
-	sudo rm $(INCLUDEPATH)/softfloat.h
-	sudo rm $(INCLUDEPATH)/softfloat_types.h
+	rm $(LIBPATH)
+	rm $(INCLUDEPATH)/softfloat.h
+	rm $(INCLUDEPATH)/softfloat_types.h
 
 install:
-	sudo cp berkeley-softfloat-3/source/include/softfloat.h $(INCLUDEPATH)/softfloat.h
-	sudo cp berkeley-softfloat-3/source/include/softfloat_types.h $(INCLUDEPATH)/softfloat_types.h
-	sudo cp lib/$(LIBNAME) $(LIBPATH)
+	cp berkeley-softfloat-3/source/include/softfloat.h $(INCLUDEPATH)/softfloat.h
+	cp berkeley-softfloat-3/source/include/softfloat_types.h $(INCLUDEPATH)/softfloat_types.h
+	cp lib/$(LIBNAME) $(LIBPATH)
 
 softfloat:
 	cd $(SOFTFLOAT_PATH) &&	make SPECIALIZE_TYPE=$(SPECIALIZE_TYPE)
