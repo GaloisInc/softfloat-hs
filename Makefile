@@ -21,14 +21,14 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 SPECIALIZE_TYPE=$(COMPILE_TYPE) SOFTFLOAT_OPTS="-DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -fpic"
 CFLAGS = -shared
-LIBNAME=libsoftfloat.so
+LIBNAME=libsoftfloat1.so
 LIBPATH=/usr/lib/$(LIBNAME)
 INCLUDEPATH=/usr/include
 endif
 ifeq ($(UNAME), Darwin)
 SPECIALIZE_TYPE=$(COMPILE_TYPE)
 CFLAGS = -dynamiclib
-LIBNAME=libsoftfloat.dylib
+LIBNAME=libsoftfloat1.dylib
 LIBPATH=/usr/local/lib/$(LIBNAME)
 INCLUDEPATH=/usr/local/include
 endif
