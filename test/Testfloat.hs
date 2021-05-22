@@ -109,7 +109,7 @@ descString =
 main :: IO ()
 main = do
   progArgs <- createArgs
-  _ <- readProcess "make" [] ""
+  _ <- readProcess "make" ["testfloat"] ""
   forM_ progArgs $ \args -> do
     testVectors <- readProcess "berkeley-testfloat-3/build/Linux-x86_64-GCC/testfloat_gen" args []
     putStrLn $ "Generated test cases: " ++ show (length $ lines testVectors)
