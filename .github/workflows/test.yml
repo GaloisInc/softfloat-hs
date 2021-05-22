@@ -49,5 +49,3 @@ jobs:
       - name: Build
         run: cabal build pkg:softfloat-hs
 
-      - name: Test
-        run: cabal test pkg:softfloat-hs --test-show-details=direct
