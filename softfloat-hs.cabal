@@ -375,7 +375,8 @@ executable fpgen
                        directory,
                        process
 
-executable testfloat
+test-suite testfloat
+  type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Testfloat.hs
   other-modules:       Ops

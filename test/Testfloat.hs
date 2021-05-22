@@ -109,8 +109,8 @@ descString =
 main :: IO ()
 main = do
   progArgs <- createArgs
+  _ <- readProcess "make" [] ""
   forM_ progArgs $ \args -> do
-    print args
     testVectors <- readProcess "lib/testfloat_gen" args []
     putStrLn $ "Generated test cases: " ++ show (length $ lines testVectors)
     let testCases = zip (lines testVectors) [1 ..] :: [(String, Integer)]

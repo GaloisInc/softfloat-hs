@@ -53,7 +53,7 @@ softfloat:
 	mkdir -p lib
 	gcc $(CFLAGS) -o lib/$(LIBNAME) $(SOFTFLOAT_PATH)/*.o
 
-testfloat:
+testfloat: softfloat
 	cd $(TESTFLOAT_PATH) &&	make all
 	ln -s ../$(TESTFLOAT_PATH)/testfloat lib/testfloat
 	ln -s ../$(TESTFLOAT_PATH)/testfloat_gen lib/testfloat_gen
