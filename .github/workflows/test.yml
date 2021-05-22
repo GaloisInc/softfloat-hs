@@ -50,4 +50,4 @@ jobs:
         run: cabal build pkg:softfloat-hs
 
       - name: Test
-        run: cabal test pkg:softfloat-hs
+        run: cabal test pkg:softfloat-hs --test-show-details=direct
