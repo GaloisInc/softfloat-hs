@@ -111,7 +111,7 @@ main = do
   progArgs <- createArgs
   _ <- readProcess "make" [] ""
   forM_ progArgs $ \args -> do
-    testVectors <- readProcess "lib/testfloat_gen" args []
+    testVectors <- readProcess "berkeley-testfloat-3/build/Linux-x86_64-GCC/testfloat_gen" args []
     putStrLn $ "Generated test cases: " ++ show (length $ lines testVectors)
     let testCases = zip (lines testVectors) [1 ..] :: [(String, Integer)]
     forM_ testCases $ \(testData, testNumber) -> do
