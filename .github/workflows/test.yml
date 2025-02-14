@@ -46,6 +46,11 @@ jobs:
         with:
           ghc-version: ${{ matrix.ghc }}
 
+      - name: Configure
+        run: cabal configure --enable-tests -j2
+
       - name: Build
         run: cabal build pkg:softfloat-hs
 
+      - name: Test (test-th)
+        run: cabal test test-th
