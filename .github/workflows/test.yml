@@ -19,32 +19,33 @@ jobs:
     continue-on-error: ${{ matrix.allow-failure }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        ghc: [9.0, 8.10, 8.8, 8.6]
+        os: [ubuntu-22.04, macos-14]
+        ghc: [9.4.8, 9.6.6, 9.8.2]
+        cabal: [3.10.3.0]
         allow-failure: [false]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: actions/cache@v2
-        name: Cache builds
+
+      - uses: actions/cache/restore@v4
+        name: Restore cabal store cache
         with:
           path: |
             ${{ steps.setup-haskell.outputs.cabal-store }}
-            ~/.cabal/packages
-            ~/.cabal/store
             dist-newstyle
           key: |
-            ${{ env.CACHE_VERSION }}-cabal-${{ runner.os }}-ghc${{ matrix.ghc }}-${{ github.ref }}
+            ${{ env.CACHE_VERSION }}-cabal-${{ matrix.os }}-ghc${{ matrix.ghc }}-${{ github.sha }}
           restore-keys: |
-            ${{ env.CACHE_VERSION }}-cabal-${{ runner.os }}-ghc${{ matrix.ghc }}-
+            ${{ env.CACHE_VERSION }}-cabal-${{ matrix.os }}-ghc${{ matrix.ghc }}-
 
-      - uses: haskell/actions/setup@v1
+      - uses: haskell-actions/setup@v2
         id: setup-haskell-cabal
         name: Setup Haskell
         with:
           ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
 
       - name: Configure
         run: cabal configure --enable-tests -j2
@@ -54,3 +55,13 @@ jobs:
 
       - name: Test (test-th)
         run: cabal test test-th
+
+      - uses: actions/cache/save@v4
+        name: Save cabal store cache
+        if: always()
+        with:
+          path: |
+            ${{ steps.setup-haskell.outputs.cabal-store }}
+            dist-newstyle
+          key: |
+            ${{ env.CACHE_VERSION }}-cabal-${{ matrix.os }}-ghc${{ matrix.ghc }}-${{ github.sha }}
