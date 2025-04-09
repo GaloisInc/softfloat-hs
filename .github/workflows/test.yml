@@ -3,19 +3,9 @@ on:
   - push
   - pull_request
 
-# The CACHE_VERSION can be updated to force the use of a new cache if
-# the current cache contents become corrupted/invalid.  This can
-# sometimes happen when (for example) the OS version is changed but
-# older .so files are cached, which can have various effects
-# (e.g. cabal complains it can't find a valid version of the "happy"
-# tool).
-env:
-  CACHE_VERSION: 1
-
 jobs:
-  linux:
+  test:
     name: Testing ${{ matrix.os }} GHC-${{ matrix.ghc }}
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -27,44 +17,13 @@ jobs:
           - os: macos-14
             ghc: 9.8.2
             cabal: 3.10.3.0
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - uses: actions/cache/restore@v4
-        name: Restore cabal store cache
-        with:
-          path: |
-            ${{ steps.setup-haskell.outputs.cabal-store }}
-            dist-newstyle
-          key: |
-            ${{ env.CACHE_VERSION }}-cabal-${{ matrix.os }}-ghc${{ matrix.ghc }}-${{ github.sha }}
-          restore-keys: |
-            ${{ env.CACHE_VERSION }}-cabal-${{ matrix.os }}-ghc${{ matrix.ghc }}-
-
-      - uses: haskell-actions/setup@v2
-        id: setup-haskell-cabal
-        name: Setup Haskell
-        with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
-
-      - name: Configure
-        run: cabal configure --enable-tests -j2
-
-      - name: Build
-        run: cabal build pkg:softfloat-hs
-
-      - name: Test (test-th)
-        run: cabal test test-th
-
-      - uses: actions/cache/save@v4
-        name: Save cabal store cache
-        if: always()
-        with:
-          path: |
-            ${{ steps.setup-haskell.outputs.cabal-store }}
-            dist-newstyle
-          key: |
-            ${{ env.CACHE_VERSION }}-cabal-${{ matrix.os }}-ghc${{ matrix.ghc }}-${{ github.sha }}
+    uses: GaloisInc/.github/.github/workflows/haskell-ci.yml@v1.3
+    with:
+      build-targets: "pkg:softfloat-hs"
+      cabal: ${{ matrix.cabal }}
+      check: false
+      ghc: ${{ matrix.ghc }}
+      os: ${{ matrix.os }}
+      sdist: false
+      submodules: "true"
+      test-targets: "test:test-th"
