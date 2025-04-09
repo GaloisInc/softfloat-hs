@@ -13,7 +13,7 @@ copyright:           March 2018
 category:            Math
 build-type:          Simple
 cabal-version:       >=1.10
-extra-source-files:  README.md
+extra-source-files:  README.md, CHANGELOG.md
 
 flag UseBundledC
      description: Use a bundled copy of the C sources for the softfloat library
