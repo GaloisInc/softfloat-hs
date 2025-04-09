@@ -17,11 +17,16 @@ jobs:
     name: Testing ${{ matrix.os }} GHC-${{ matrix.ghc }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-14]
+        os: [ubuntu-22.04]
         ghc: [9.4.8, 9.6.6, 9.8.2]
         cabal: [3.10.3.0]
-      fail-fast: false
+        # Test a single macOS configuration against the latest supported GHC version
+        include:
+          - os: macos-14
+            ghc: 9.8.2
+            cabal: 3.10.3.0
     steps:
       - uses: actions/checkout@v4
         with:
