@@ -11,12 +11,12 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         ghc: [9.4.8, 9.6.6, 9.8.2]
-        cabal: [3.10.3.0]
+        cabal: [3.14.2.0]
         # Test a single macOS configuration against the latest supported GHC version
         include:
           - os: macos-14
             ghc: 9.8.2
-            cabal: 3.10.3.0
+            cabal: 3.14.2.0
     uses: GaloisInc/.github/.github/workflows/haskell-ci.yml@v1.3
     with:
       build-targets: "pkg:softfloat-hs"
